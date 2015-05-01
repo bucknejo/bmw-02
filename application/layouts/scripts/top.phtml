@@ -1,0 +1,71 @@
+<?php 
+
+    $role_id = 9999;
+    $auth = Zend_Auth::getInstance();
+    if ($auth->hasIdentity()) {
+        $role_id = $auth->getIdentity()->role_id;
+    }
+    
+    $config = Zend_Registry::get('config');    
+
+?>
+
+<style type="text/css">
+    
+    /*#top-container {position:absolute;top:20px;left:0px;background-color:#666666;padding:15px 0px 15px 15px;height:40px;width:925px;}    */
+    #top-container {
+        position:absolute;
+        top:20px;
+        left:0px;
+        /*background-color:#666666;*/
+        background: linear-gradient(to left, #0e1013, #3f3f3f);
+        padding:15px 0px 15px 15px;
+        height:40px;
+        width:925px;
+    }    
+    
+    a.top-link {text-decoration:none;font-size:12px;padding:0px 5px 0px 0px;color:#fff;}
+    a.top-link:link {color:#fff;}
+    /*a.top-link:hover {color:#0088ce;}*/
+    a.top-link:hover {color:#1c68d1;}
+    
+    
+    
+    #tc-top {position:absolute;top:13px;left:15px;}
+    #seperator {position:absolute;top:25px;left:15px;width:600px;border-top:1px solid #fff;margin:10px 0px 10px 0px;}
+    #tc-bottom {position:absolute;top:44px;left:15px;}
+    
+    #top-image {position:absolute;top:15px;right:50px;z-index:50;}
+    
+</style>
+
+<div id="top-container">
+    <div id="tc-top">
+        <a href="/" class="top-link">BMW Aftersales Recognition Ride-and-Drive Event</a>
+    </div>    
+
+    <div id="seperator"></div>
+
+    <div id="tc-bottom">
+        
+        <!--
+        <a href="/" class="top-link">Home</a>
+        <a href="/agenda" class="top-link">Agenda</a>
+        <a href="/accommodations" class="top-link">Hotel Accommodations</a>
+        -->
+        <a href="/agenda" class="top-link">Agenda</a>
+        <a href="/accommodations" class="top-link">Hotel Accommodations</a>
+        <a href="mailto:<?php echo $config->site->admin->email;?>" class="top-link">Contact</a>
+
+        <?php if ($role_id == 1): ?> 
+            <a href="/admin" class="top-link">Admin</a>            
+        <?php endif;?>
+        
+        
+    </div>
+    
+</div>
+<!--
+<img src="/images/mods.png" alt="" id="top-image"/>
+-->
+<img src="/images/id_box_90x90-new-2015.png" alt="" id="top-image"/>

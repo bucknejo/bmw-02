@@ -1,0 +1,269 @@
+<style type="text/css">
+    #guest-information {display:none;}
+    #participant-information {display:none;}
+</style>
+
+<script type="text/javascript">
+    
+;(function($){
+ 
+    $(document).ready(function(){
+        
+        var guest_info = <?php echo json_encode($this->guest);?>;
+        
+        if (guest_info.length > 0) {
+
+            $("#guest_nickname").val(guest_info[0].nickname);
+            $("#guest_center").val(guest_info[0].center).prop('selected', true);
+            $("#guest_region").val(guest_info[0].region).prop('selected', true);
+            $("#guest_gender").val(guest_info[0].gender).prop('selected', true);
+            $("#guest_email").val(guest_info[0].email).prop('selected', true);
+            $("#guest_telephone").val(guest_info[0].telephone);
+            $("#guest_emergency_contact").val(guest_info[0].emergency_contact);
+            $("#guest_emergency_telephone").val(guest_info[0].emergency_telephone);
+            $("#guest_dietary_restrictions").val(guest_info[0].dietary_restrictions);
+
+        }
+        
+        $("#guest_type").change(function(event){
+            
+            console.log("changing guest_type: " + $(this).val());
+            
+            if ($(this).val() == 'Personal') {
+                console.log('selected personal');
+                $("#participant-information").hide();                
+                $("#guest-information").show();
+            }
+            
+            if ($(this).val() == 'Participant') {
+                console.log('selected participant');
+                $("#guest-information").hide();
+                $("#participant-information").show();                
+            }
+            
+        });
+
+        function buildUrl(url, type) {
+            
+            if (type == 'Personal') {
+                var guest_name = $("#personal_guest_name").val();
+                
+                url+="/type/Personal";
+                url+="/guest_name/"+guest_name;
+                
+            }
+            
+            if (type == 'Participant') {
+                
+                var guest_name = $("#participant_guest_name").val();
+                var nickname = $("#guest_nickname").val();
+                var center = $("#guest_center").val();
+                var region = $("#guest_region").val();
+                var gender = $("#guest_gender").val();
+                var email = $("#guest_email").val();
+                var telephone = $("#guest_telephone").val();
+                var emergency_contact = $("#guest_emergency_contact").val();
+                var emergency_telephone = $("#guest_emergency_telephone").val();
+                var dietary_restrictions = $("#guest_dietary_restrictions").val();
+                
+                url+="/type/Participant";
+                url+="/guest_name/"+guest_name;
+                url+="/nickname/"+nickname;
+                url+="/center/"+center;
+                url+="/region/"+region;
+                url+="/gender/"+gender;
+                url+="/email/"+email;
+                url+="/telephone/"+telephone;
+                url+="/emergency_contact/"+emergency_contact;
+                url+="/emergency_telephone/"+emergency_telephone;
+                url+="/dietary_restrictions/"+dietary_restrictions;
+                
+            }
+            
+            return url+"/format/html";
+                        
+        }
+        
+        var baseUrl = "/accommodations/guest";
+        
+        function runAjax(url, cache, async, dataType, type) {
+            
+            $.ajax({
+                url:url,
+                cache:cache,
+                async:async,
+                dataType:dataType,
+                type:type,
+                error: function(responseText) {
+                    console.log("Error:" + responseText);                     
+                },
+                success: function(responseText) {
+                    console.log("Success:" + responseText);                     
+                },
+                beforeSend: function() {
+                    $("#loader").show();
+                },
+                complete: function() {
+                    $("#loader").hide();
+                }
+            });
+            
+        }
+        
+        
+        $("#submit-guest").button().click(function(event) {   
+
+            event.preventDefault();
+            var url = buildUrl(baseUrl, 'Personal');
+            console.log('AJAX url: ' + url);
+            
+            if ($("#form-guest").valid()) {
+                runAjax(url, false, true, 'html', 'post');
+                $("#occupancy-dialog").dialog("close");                
+            }
+            
+            return false;
+        });
+        
+        $("#submit-participant").button().click(function(event) {            
+            event.preventDefault();
+            var url = buildUrl(baseUrl, 'Participant');
+            console.log('AJAX url: ' + url);
+            
+            if ($("#form-participant").valid()) {
+                runAjax(url, false, true, 'html', 'post');
+                $("#occupancy-dialog").dialog("close");                
+            }
+            
+            return false;
+        });
+        
+        
+    });
+   
+})(jQuery);
+
+</script>
+
+
+<table border="0" width="100%">
+    <tr>
+        <td><span class="site-label-1">Guest Type:</span></td>
+        <td>
+            <select class="site-select-1" name="guest_type" id="guest_type">
+                <?php if(count($this->guest_types)>0):?>
+                <?php foreach($this->guest_types as $guest_type):?>
+                <option value="<?php echo $guest_type;?>"><?php echo $guest_type;?></option>
+                <?php endforeach;?>
+                <?php endif;?>                                                        
+            </select>
+        </td>
+    </tr>    
+</table>
+
+<div id="guest-information">
+    <form id="form-guest">
+        <table border="0" width="100%">
+            <tr>
+                <td><span class="site-label-1">Guest Name:</span></td>
+                <td><input type="text" class="site-text-1 required" name="personal_guest_name" id="personal_guest_name" value="" /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="left"><button name="" id="submit-guest">Submit</button></td>
+            </tr>
+        </table>
+    </form>        
+</div>    
+
+<div id="participant-information">    
+    <form id="form-participant">
+        <table border="0" width="100%">
+            <tr>
+                <td><span class="site-label-1">Guest Name:</span></td>
+                <td><input type="text" class="site-text-1 required" name="participant_guest_name" id="participant_guest_name" value="" /></td>
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Participant Nickname:</span></td>
+                <td><input type="text" class="site-text-1" name="guest_nickname" id="guest_nickname" value="" /></td>
+            </tr>
+
+            <tr>
+                <td><span class="site-label-1">Email:</span></td>
+                <td>
+                    <select class="site-select-1" name="guest_email" id="guest_email">
+                        <?php if(count($this->participants)>0):?>
+                        <?php foreach($this->participants as $participant):?>
+                        <?php foreach($participant as $key => $value):?>
+                        <option value="<?php echo $value;?>"><?php echo $value;?></option>
+                        <?php endforeach;?>
+                        <?php endforeach;?>
+                        <?php endif;?>                                                    
+                    </select>
+                </td>
+            </tr>
+                        
+            <tr>
+                <td><span class="site-label-1">Center:</span></td>
+                <td><input type="text" class="site-text-1 required" name="guest_center" id="guest_center" value="" /></td>
+                <!--
+                <td>
+                    <select class="site-select-1 required" name="guest_center" id="guest_center">
+                        <?php if(count($this->centers)>0):?>
+                        <?php foreach($this->centers as $center):?>
+                        <option value="<?php echo $center;?>"><?php echo $center;?></option>
+                        <?php endforeach;?>
+                        <?php endif;?>                                                        
+                    </select>
+                </td>
+                -->
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Region:</span></td>
+                <td>
+                    <select class="site-select-1 required" name="guest_region" id="guest_region">
+                        <?php if(count($this->regions)>0):?>
+                        <?php foreach($this->regions as $region):?>
+                        <option value="<?php echo $region;?>"><?php echo $region;?></option>
+                        <?php endforeach;?>
+                        <?php endif;?>                            
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Gender:</span></td>
+                <td>
+                    <select class="site-select-1" name="guest_gender" id="guest_gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Telephone:</span></td>
+                <td><input type="text" class="site-text-1 required" name="guest_telephone" id="guest_telephone" value="" /></td>
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Emergency Contact:</span></td>
+                <td><input type="text" class="site-text-1 required" name="guest_emergency_contact" id="guest_emergency_contact" value="" /></td>
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Emergency Telephone:</span></td>
+                <td><input type="text" class="site-text-1 required" name="guest_emergency_telephone" id="guest_emergency_telephone" value="" /></td>
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Dietary Restriction(s):</span></td>
+                <td><input type="text" class="site-text-1" name="guest_dietary_restrictions" id="guest_dietary_restrictions" value="" /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td align="left"><button name="" id="submit-participant">Submit</button></td>
+            </tr>
+            <tr>
+                <td><span class="">Note, the participant will appear on the hotel rooming list as a guest in your room.  Please do not make a separate reservation for the guest.</span></td>
+                <td></td>
+            </tr>
+        </table>
+    </form>
+</div>

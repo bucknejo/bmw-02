@@ -1,0 +1,95 @@
+<?php 
+
+    $config = Zend_Registry::get('config');
+    $title = $config->project->title;
+
+?>
+
+<style type="text/css">
+    
+    #content {left:50%;margin-left:-300px;padding-top:0px;position:absolute;width:600px;}    
+    #top-container {width:600px;}
+    #links {display:none;}
+    
+    #index-container {position:relative;padding:0px 10px;border:0px solid #0088ce;margin-bottom:10px;}
+    #attending-div {margin:15px;}
+    
+    #print-confirm {float:right;}
+    
+    .session-container {margin-bottom:15px;}
+    
+    #dealer-info {margin:15px 0px;}
+    .dealer-key {font-size:12px;font-weight:bold;color:#333333;}
+    .dealer-value {font-size:12px;font-weight:normal;color:#666666;}
+    
+    #seperator {width:300px;}    
+    
+    #participant-list {list-style-type: none;padding:0px;margin:0px;}
+    
+    table tr td {width:150px;}
+            
+</style>
+
+<script type="text/javascript">
+        
+    ;(function($) {
+        
+        $(document).ready(function(){
+            
+            $("#print").click(function(event){            
+                event.preventDefault();
+                window.print(event);
+                return false;
+            });
+            
+        });
+                
+    })(jQuery);
+        
+</script>
+
+<div id="index-container">
+    
+    <h3>Registration Confirmation
+        <a href="javascript:void(0);" id="print" class="site-link-1" style="float:right;padding:2px;">Print</a>
+    </h3>
+    
+    <p>
+        Congratulations!  You have successfully registered for <?php echo $title;?>.  Please print this page and keep a copy for your records.
+    </p>
+            
+    <div id="dealer-info">
+        
+        <table>
+            <tr>
+                <td><span class="dealer-key">Name:</span></td>
+                <td><span class="dealer-value"><?php echo $this->manager["first_name"] . " " . $this->manager["last_name"];?></span></td>
+            </tr>
+            <tr>
+                <td><span class="dealer-key">Title:</span></td>
+                <td><span class="dealer-value"><?php echo $this->manager["title"];?></span></td>
+            </tr>
+            <tr>
+                <td><span class="dealer-key">Email:</span></td>
+                <td><span class="dealer-value"><?php echo $this->manager["email"];?></span></td>
+            </tr>
+            <tr>
+                <td valign="top"><span class="dealer-key">Participants:</span></td>
+                <td valign="top">
+                    <?php if(!empty($this->participants)):?>
+                    <ul id="participant-list">
+                    <?php foreach($this->participants as $participant):?>
+                        <li><span class="dealer-value"><?php echo $participant["first_name"] . " " . $participant["last_name"]?></span></li>
+                    <?php endforeach;?>
+                    </ul>
+                    <?php endif;?>
+                    
+                </td>                
+            </tr>
+        </table>
+        
+    </div>
+    
+    
+    
+</div>

@@ -1,0 +1,1070 @@
+<style type="text/css">
+    #index-content {margin-bottom:15px;padding:10px;width:918px;border:1px solid #c8c8c8;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;}
+    #index-image-1 {}
+    #index-image-2 {margin-left:525px;}
+    .manager-required {color:red;padding-left:10px;}
+    .participant-required {color:red;padding-left:10px;}
+    .foot-note {font-weight: bold; margin:5px;}    
+    
+    #add-response {display:none;}
+    #edit-response {display:none;}
+    
+    #edit-response-body {text-align:center;padding-top:30px;}
+    #add-response-body {text-align:center;padding-top:30px;}
+    
+    .form-segment {font-weight:bold;margin:10px 0px 5px 0px;}
+    .form-spacing {margin:5px;}
+    .form-spacing-button {margin:5px 0px 5px 0px;}
+
+       
+</style>
+
+<script type="text/javascript">
+    
+;(function($){
+ 
+    $(document).ready(function(){
+        
+        var users = [];
+        
+        $("#detail").dialog({
+            autoOpen: false,
+            modal: true,
+            height: 650,
+            width: 450,
+            show: "slide",
+            hide: "clip"
+        });
+        
+        function dateElement(el) {
+            $(el).datepicker({
+                //showOn: "button",
+                //buttonImage: "/images/icon_calendar.png",
+                //buttonImageOnly: true,
+                dateFormat:"yy-mm-dd"
+            });
+        }
+
+        function dateValue() {
+
+            var rv = "";
+            var currentTime = new Date(); 
+            var month = parseInt(currentTime.getMonth() + 1); 
+            month = month <= 9 ? "0"+month : month; 
+            var day = currentTime.getDate(); 
+            day = day <= 9 ? "0"+day : day; 
+            var year = currentTime.getFullYear(); 
+            //rv = year+"-"+month + "-"+day;
+            return rv;
+
+        }
+        
+        function requiredGuest(value) {
+
+            var occupancy = $("#occupancy").val();
+
+            var guest_type = $("#guest_type").val();
+
+
+            if (occupancy == 'Double' && value == '') {
+                return [false,'Please enter a Guest Name or select single occupancy.',''];
+            } else {
+
+                if (guest_type != 'Guest') {
+                    return [false,'Please make sure guest type is selected as "Guest".',''];
+                } else {
+                                                
+                    return [true,'',''];                    
+                }
+
+            }
+
+        }
+        
+        function validateOccupancy(value) {
+
+            var gfn = $("#guest_first_name").val();
+            var gln = $("#guest_last_name").val();
+            var gpi = $("#guest_participant_id").val();
+            var gt = $("#guest_type").val(); 
+
+            console.log("=== validateOccupancy ===");
+            console.log("gfn: " + gfn);
+            console.log("gln: " + gln);
+            console.log("gpi: " + gpi);
+            console.log("value: " + value);
+            console.log("=========================");
+            
+
+            if (value == 'Single') {                    
+                if (gfn != '' || gln != '' || gpi != '0' || gt != 'NA') {
+                    return [false,'If you want to enter guest information, please select Double occupancy.',''];
+                }                    
+                return [true,'',''];                                        
+            } else {                   
+                return [true,'',''];                                        
+            }
+
+        }
+        
+        
+        function validateGuestType(value) {
+
+
+            var occupancy = $("#occupancy").val();
+            var gfn = $("#guest_first_name").val();
+            var gln = $("#guest_last_name").val();
+            var ggd = $("#guest_gender").val();
+            var gdr = $("#guest_dietary_restrictions").val();
+            var gec = $("#guest_emergency_contact").val();
+            var get = $("#guest_emergency_telephone").val();
+            var gad = $("#guest_arrival_date").val();
+            var gat = $("#guest_arrival_time").val();
+            var gai = $("#guest_arrival_flight_info").val();
+            var gdd = $("#guest_departure_date").val();
+            var gdt = $("#guest_departure_time").val();
+            var gdi = $("#guest_departure_flight_info").val();
+
+
+            var gpi = $("#guest_participant_id").val();
+
+            console.log("=== validateGuestType ===");
+            console.log("gfn: " + gfn);
+            console.log("gln: " + gln);
+            console.log("gpi: " + gpi);
+            console.log("occupancy: " + occupancy);
+            console.log("value: " + value);
+            console.log("=========================");
+
+
+            if (occupancy == 'Double' && value == 'NA') {                                
+                return [false,'Please select a guest type or select single occupancy.',''];
+            } else {                
+
+                if (value == 'Participant' && gpi == '0') {
+                    return [false,'Guest type "Participant" requires a registered participant selection.',''];                    
+                }
+
+                //if (value == 'Participant' && gpi != '0' && (gfn != '' || gln != '' || ggd != '' || gdr != '' || gec != '' || get != '' || gad != '' || gat != '' || gai != '' || gdd != '' || gdt != '' || gdi != '')) {
+                //    return [false,'Guest type "Participant" requires a registered participant selection.',''];                    
+                //}
+
+                //if (value == 'Guest' && (gfn == '' || gln == '' || ggd == '' || gdr == '' || gec == '' || get == '' || gad == '' || gat == '' || gai == '' || gdd == '' || gdt == '' || gdi == '')) {
+                if (value == 'Guest' && (gfn == '' || gln == '' || ggd == '' || gec == '' || get == '')) {
+                    return [false,'Guest type "Guest" requires all guest information to be completed.',''];                                        
+                }
+
+                if (value == 'Guest' && gpi != '0') {
+                    return [false,'Guest type "Guest" cannot have a selected participant .',''];                                        
+                }
+
+                return [true,'',''];
+            }
+
+        }
+
+        function requiredGuestParticipant(value) {
+
+            var occupancy = $("#occupancy").val();
+
+            var guest_type = $("#guest_type").val();
+
+            if (occupancy == 'Double' && value == '0' && guest_type == 'Participant') {
+                return [false,'Please select a participant, change the guest type to "Guest" or select single occupancy.',''];
+            } else {                                
+                return [true,'',''];
+            }
+
+        }
+        
+
+        function scrollDown() {
+            $("html, body").animate({ scrollTop: $(document).height() }, "slow");                
+        }
+        
+        function editResponse(response_code) {
+
+            var html = "";
+
+            console.log("Edit Response Code: " + response_code);
+
+            if (response_code == 0) {
+                html = "No changes have been made.";
+            } else if (response_code > 0)  {
+                html = "Changes have been applied.";
+            } else {                    
+                html = "An error has occurred.  Please contact support.";
+            }
+
+            return html;
+
+        }
+
+        function addResponse(response_code) {
+
+            var html = "";
+
+            console.log("Edit Response Code: " + response_code);
+
+            if (response_code > 0) {
+                html = "Your confirmation has been saved.";
+            } else {                    
+                html = "An error has occurred.  Please contact support.";
+            }
+
+            return html;
+
+        }
+        
+        function clearGuestInformation() {
+
+            var cgi = "<div id='clear-guest-information' style='font-size:9px;'>Clear Guest</div>";  
+            return cgi;
+
+        }
+                            
+        function beforeShowForm(gpi) {
+            
+            var ms = "";
+            
+            ms+= '<div>Manager ID: <select name="admin_manager_id" id="admin_manager_id"><?php echo $this->manager_options;?></select></div>';
+            
+            $('<tr class="FormData" id="no-1"><td colspan=4><div class="form-segment">Participant Information</div>'+ms+'<hr /></td></tr>').insertBefore('#tr_manager_id');                            
+            $('<tr class="FormData" id="no-2"><td colspan=4><div class="form-segment">Guest Information</div><hr /></td></tr>').insertBefore('#tr_guest_type');                
+            //$('<tr class="FormData" id="no-3"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_flight_info');                                
+            $('<tr class="FormData" id="no-3"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_date');                                
+            
+            $("#clear-guest-information").button().click(function(){
+
+                console.log('clearing guest information...');
+
+                $("#guest_first_name").val('');
+                $("#guest_last_name").val('');
+                $("#guest_gender").val('');
+                $("#guest_dietary_restrictions").val('');
+                $("#guest_emergency_contact").val('');
+                $("#guest_emergency_telephone").val('');
+                $("#guest_arrival_date").val('');
+                $("#guest_arrival_time").val('');
+                $("#guest_arrival_flight_info").val('');
+                $("#guest_departure_date").val('');
+                $("#guest_departure_time").val('');
+                $("#guest_departure_flight_info").val('');
+                $("#guest_participant_id").val('');                                
+
+            });
+            
+            
+            var mid = $("#manager_id").val();
+            $("#admin_manager_id").val(mid);
+            
+            getAvailableParticipants(mid, gpi);  
+                        
+            changeGuestType();
+                        
+        }
+
+        function onClose() {
+            $("#no-1").remove();                
+            $("#no-2").remove();                
+            $("#no-3").remove();                
+        }
+            
+            
+        function changeGuestType() {
+            var gt = $("#guest_type").val();
+            console.log("changed! " + gt);
+
+            // show guest fields
+            if (gt == 'Guest') {
+                $("#tr_guest_first_name").show();
+                $("#tr_guest_gender").show();
+                $("#tr_guest_emergency_contact").show();
+                $("#tr_guest_arrival_date").show();
+                $("#tr_guest_arrival_time").show();
+                $("#tr_guest_arrival_flight_info").show(); 
+
+                // set the guest select box back to 0
+                $("#guest_participant_id").val('0');
+
+
+            } else {
+
+                $("#tr_guest_first_name").hide();
+                $("#tr_guest_gender").hide();
+                $("#tr_guest_emergency_contact").hide();
+                $("#tr_guest_arrival_date").hide();
+                $("#tr_guest_arrival_time").hide();
+                $("#tr_guest_arrival_flight_info").hide();                    
+            }
+
+        }
+
+        function getAvailableParticipants(id, gpi) {
+
+            $("#guest_participant_id option").each(function(){
+                $(this).remove();
+            });
+
+            var url = "/admin/list/manager_id/"+id+"/format/html";
+            var options = "";
+
+            $.ajax({
+                url:url,
+                async:false,
+                dataType:'html',
+                success: function(data) {
+                    console.log("data: " + data);
+                    options = data;
+                } 
+
+            });
+
+            $("#guest_participant_id").html(options);
+            
+            if (gpi) {
+                $("#guest_participant_id").val(gpi);
+            }
+
+        }
+        
+        function getAvailableManagers() {
+
+            $("#manager_id option").each(function(){
+                $(this).remove();
+            });
+
+            var url = "/managers/list/format/html";
+            var options = "";
+
+            $.ajax({
+                url:url,
+                async:false,
+                dataType:'html',
+                success: function(data) {
+                    console.log("data: " + data);
+                    options = data;
+                } 
+
+            });
+
+            $("#manager_id").html(options);
+
+        }
+            
+                    
+        // managers grid    
+        //========================================
+        var mGrid = $("#list-managers");
+        $("#list-managers").jqGrid({
+            url: '/managers/read/table/managers/format/html',
+            datatype: 'xml',
+            colNames: [
+                'Index', 
+                'id',
+                'date_created',
+                'last_updated',
+                'user',
+                'active',
+                'First Name',
+                'Last Name',
+                'User Name',                                        
+                'Email',
+                'Password',
+                'Registered',
+                'Job Title',
+                'Center Number',
+                'Region',
+                'Gender',
+                'Role ID',
+            ],
+            colModel: [
+                {name:'index',index:'index',align:'',hidden:true},
+                {name:'id',index:'id',align:'',hidden:true},
+                {name:'date_created',index:'date_created',align:'',hidden:true},
+                {name:'last_updated',index:'last_updated',align:'',hidden:true},
+                {name:'user',index:'',align:'user',hidden:true},
+                {name:'active',index:'',align:'active',hidden:true},
+                {name:'first_name',index:'first_name',align:'',hidden:false, editable:true, align:"center", editrules:{required:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:1, colpos:1, label:'First Name'}, editoptions:{style:"width:150px"}},
+                {name:'last_name',index:'last_name',align:'',hidden:false, editable:true, align:"center", editrules:{required:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:1, colpos:2, label:'Last Name'}, editoptions:{style:"width:150px"}},
+                {name:'user_name',index:'user_name',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:2, colpos:1, label:'User Name'}, editoptions:{style:"width:150px"}},
+                {name:'email',index:'email',align:'',hidden:false, editable:true, align:"center", editrules:{required:true, edithidden:true, email:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:2, colpos:2, label:'Email'}, editoptions:{style:"width:150px"}},
+                {name:'password',index:'password',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:3, colpos:1, label:'Password'}, editoptions:{style:"width:150px"}},
+                {name:'registered',index:'registered',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:3, colpos:2, label:'Registered'}, editoptions:{style:"width:150px"}},
+                {name:'title',index:'title',align:'',hidden:false, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:4, colpos:1, label:'Job Title'}, editoptions:{style:"width:150px"}},
+                {name:'center',index:'center',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:4, colpos:2, label:'Center Number'}, editoptions:{style:"width:150px"}}, 
+                {name:'region',index:'region',align:'',hidden:false, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:5, colpos:1, label:'Region'}, edittype:'select',editoptions:{value:"East:East;Central:Central;Corporate:Corporate;South:South;West:West", style:"width:158px"}},
+                {name:'gender',index:'gender',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:5, colpos:2, label:'Gender'}, edittype:'select',editoptions:{value:"Male:Male;Female:Female", style:"width:158px"}},
+                {name:'role_id',index:'role_id',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="manager-required">*</span>', rowpos:6, colpos:1, label:'Role ID'}, editoptions:{style:"width:150px"}},
+            ],
+            pager:'#pager-managers',
+            rowNum: 25,
+            rowList: [5, 10, 25, 50, 100, 500],
+            sortname: '1',
+            sortorder: 'asc',
+            viewrecords: true,
+            editurl: '/managers/edit/table/managers/format/html',
+            height: 425,
+            width: 880,
+            caption: "Managers",
+            loadError: function(xhr, status, error) {
+                    $("#detail-inner").html(status + "<br>" + error);
+                    $("#detail").dialog("open");
+                    return false;
+            },
+            loadComplete: function() {
+                
+            },
+            ondblClickRow: function(id) {
+
+                var editOptions = {
+                    editCaption: 'Edit Manager',
+                    closeAfterEdit:true,
+                    modal: true,
+                    jqModal: true,    
+                    top:$(window).height()/2 - 200,
+                    left:$(window).width()/2 - 453,
+                    width:900,
+                    editData:{
+                        id: function() {
+                            var sel_id = mGrid.jqGrid('getGridParam', 'selrow');
+                            var value = mGrid.jqGrid('getCell', sel_id, 'id');
+                            return value;                                                
+                        },
+                        manager_id:0
+                    },
+                    afterComplete: function(response, postdata, formid) {
+                        $("#edit-response-body").html(editResponse(response.responseText));
+                        $("#edit-response").dialog("open");
+                    },
+                    beforeShowForm: function() {
+
+                    },
+                    onInitializeForm: function(formid) {
+                    }                    
+                };
+
+                var ret = $(this).jqGrid('editGridRow', id, editOptions);
+            }
+
+
+        });
+
+        $("#list-managers").jqGrid(
+            'navGrid',
+            '#pager-managers',
+            {
+                del:true,
+                add:true,
+                edit:true,
+                search:true,
+                view:false
+            },
+            {
+                editCaption: 'Edit Manager',
+                closeAfterEdit:true,
+                modal: true,
+                jqModal: true,    
+                top:$(window).height()/2 - 200,
+                left:$(window).width()/2 - 453,
+                width:900,
+                editData:{
+                    id: function() {
+                        var sel_id = mGrid.jqGrid('getGridParam', 'selrow');
+                        var value = mGrid.jqGrid('getCell', sel_id, 'id');
+                        return value;                                                
+                    },                    
+                    manager_id:0
+                },
+                afterComplete: function(response, postdata, formid) {
+                    $("#edit-response-body").html(editResponse(response.responseText));
+                    $("#edit-response").dialog("open");
+                },
+                beforeShowForm: function() {
+
+                },
+                onInitializeForm: function(formid) {
+                }                    
+
+            }, // parms for edit
+            {
+                addCaption: 'Add Manager',
+                closeAfterAdd:true,
+                modal: true,
+                jqModal: true,
+                top:$(window).height()/2 - 200,
+                left:$(window).width()/2 - 453,                    
+                width:900,                    
+                editData:{
+                    id:0,
+                    manager_id:0
+                },
+                afterComplete: function(response, postdata, formid) {                        
+                    $("#add-response-body").html(addResponse(response.responseText));
+                    $("#add-response").dialog("open");                        
+                },
+                beforeShowForm: function() {
+
+                },
+                onInitializeForm: function(formid) {
+                }
+
+            }, // parms for add
+            {
+                modal: true,
+                jqModal: true,                    
+                afterComplete: function() {
+
+                },
+                beforeShowForm: function() {
+
+                }
+
+            }, // parms for delete
+            {closeAfterSearch:true,Find:'Find...',multipleSearch:true},
+            {} // parms for view
+        );
+        
+        
+        $("#list-managers").jqGrid(
+            'navGrid',
+            '#pager-managers'
+        ).jqGrid('navButtonAdd', '#pager-managers',
+            {
+                caption: "",
+                buttonicon: "ui-icon-arrowstop-1-s",
+                onClickButton: function() {
+                    //location.replace('<?php echo $this->excel ."managers"; ?>');
+                    location.replace('<?php echo $this->excel; ?>');
+                    
+                },
+                position: "last",
+                title: "Excel Download",
+                cursor: "pointer"
+            }
+        ).jqGrid('navButtonAdd', '#pager-managers',
+            {
+                caption: "",
+                buttonicon: "ui-icon-home",
+                onClickButton: function() {
+                    location.replace('/')
+                },
+                position: "last",
+                title: "Home",
+                cursor: "pointer"
+            }
+        );
+        
+                                                   
+        //========================================
+        // participants grid    
+        //========================================
+        
+        var pGrid = $("#list-participants");
+        $("#list-participants").jqGrid({
+            url: '/accommodations/read/table/participants/manager_id/<?php echo $this->manager_id;?>/format/html',
+            datatype: 'xml',
+            colNames: [
+                'Index', 
+                'id',
+                'date_created',
+                'last_updated',
+                'user',
+                'active',
+                'manager_id',
+                'registered',
+                'First Name',
+                'Last Name',
+                'Nickname',                                        
+                'Email',
+                'Job Title',
+                'Center Number',
+                'Region',
+                'Gender',
+                'Check-In Date',
+                'Check-Out Date',
+                'Early Check-In',
+                'Late Check-Out',
+                'Transportation',
+                'Hotel',
+                'Room Type',
+                'Occupancy',
+                'Telephone',
+                'Emergency Contact',
+                'Emergency Telephone',
+                'Dietary Restrictions',
+                'Arrival Date',
+                'Arrival Time',
+                'Arrival Flight Info',
+                'Departure Date',
+                'Departure Time',
+                'Departure Flight Info',
+                'Guest First Name',
+                'Guest Last Name',
+                'Guest Type',
+                'Guest Participant Id',
+                'Guest Gender',
+                'Guest Dietary Restriction',
+                'Guest Emergency Contact',
+                'Guest Emergency Phone',
+                'Guest Arrival Date',
+                'Guest Arrival Time',
+                'Guest Arrival Flight Info',
+                'Guest Departure Date',
+                'Guest Departure Time',
+                'Guest Departure Flight Info'                
+            ],
+            colModel: [
+                {name:'index',index:'index',align:'',hidden:true},
+                {name:'id',index:'id',align:'',hidden:true},
+                {name:'date_created',index:'date_created',align:'',hidden:true},
+                {name:'last_updated',index:'last_updated',align:'',hidden:true},
+                {name:'user',index:'',align:'user',hidden:true},
+                {name:'active',index:'',align:'active',hidden:true},
+                {name:'manager_id',index:'manager_id',align:'user',hidden:true,editable:true, editrules:{required:false, edithidden:true},formoptions:{elmsuffix:'', rowpos:0, colpos:0, label:''},editoptions:{style:"display:none"}},                
+                {name:'registered',index:'registered',align:'active',hidden:true},
+                {name:'first_name',index:'first_name',align:'',hidden:false, editable:true, align:"center", editrules:{required:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:1, colpos:1, label:'First Name'}, editoptions:{style:"width:150px"}},
+                {name:'last_name',index:'last_name',align:'',hidden:false, editable:true, align:"center", editrules:{required:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:1, colpos:2, label:'Last Name'}, editoptions:{style:"width:150px"}},
+                {name:'email',index:'email',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true, email:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:2, colpos:1, label:'Email'}, editoptions:{style:"width:150px"}},
+                {name:'nickname',index:'nickname',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:2, colpos:2, label:'Nickname'}, editoptions:{style:"width:150px"}},
+                {name:'title',index:'title',align:'',hidden:false, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:3, colpos:1, label:'Job Title'}, editoptions:{style:"width:150px"}},
+                {name:'center',index:'center',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:3, colpos:2, label:'Center Number'}, editoptions:{style:"width:150px"}}, 
+                {name:'region',index:'region',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:4, colpos:1, label:'Region'}, edittype:'select',editoptions:{value:"East:East;Central:Central;Corporate:Corporate;South:South;West:West", style:"width:158px"}},
+                {name:'gender',index:'gender',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:4, colpos:2, label:'Gender'}, edittype:'select',editoptions:{value:"Male:Male;Female:Female", style:"width:158px"}},
+                
+                {name:'check_in_date',index:'check_in_date',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:false, date:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:12, colpos:1, label:'Check-In Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue, style:"width:150px"}},
+                {name:'check_out_date',index:'check_out_date',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:false, date:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:12, colpos:2, label:'Check-Out Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue, style:"width:150px"}},
+                {name:'early_check_in',index:'early_check_in',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:false}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:13, colpos:1, label:'Early Check-In'}, edittype:'select',editoptions:{value:"No:No;Yes:Yes", style:"width:158px"}},
+                {name:'late_check_out',index:'late_check_out',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:false}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:13, colpos:2, label:'Late Check-Out'}, edittype:'select',editoptions:{value:"No:No;Yes:Yes", style:"width:158px"}},
+                
+                {name:'transportation',index:'transportation',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:10, colpos:1, label:'Ground Transportation Required'},edittype:'select',editoptions:{value:"No:No;Yes:Yes", style:"width:158px"}},
+                {name:'hotel',index:'hotel',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:10, colpos:2, label:'Hotel'}, edittype:'select',editoptions:{value:"Marriott Greenville:Marriott Greenville",style:"width:158px"}},
+                {name:'room_type',index:'room_type',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:11, colpos:1, label:'Room Type'}, edittype:'select',editoptions:{value:"1 King Bed:1 King Bed;2 Double Beds:2 Double Beds",style:"width:158px"}},
+                {name:'occupancy',index:'occupancy',align:'',hidden:true, editable:true, align:"center", editrules:{custom:true, custom_func:validateOccupancy,required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:11, colpos:2, label:'Occupancy'}, edittype:'select',editoptions:{value:"Single:Single;Double:Double",style:"width:158px"}},
+                
+                {name:'telephone',index:'telephone',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:5, colpos:1, label:'Telephone'}, editoptions:{style:"width:150px"}},
+                {name:'emergency_contact',index:'emergency_contact',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:6, colpos:1, label:'Emergency Contact'}, editoptions:{style:"width:150px"}},
+                {name:'emergency_telephone',index:'emergency_telephone',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:6, colpos:2, label:'Emergency Telephone'}, editoptions:{style:"width:150px"}},
+                {name:'dietary_restrictions',index:'dietary_restrictions',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:5, colpos:2, label:'Dietary Restriction'}, editoptions:{style:"width:150px"}},
+                
+                {name:'arrival_date',index:'arrival_date',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true, date:true}, formoptions:{elmsuffix:'', rowpos:7, colpos:1, label:'Arrival Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px"}},
+                {name:'arrival_time',index:'arrival_time',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:8, colpos:1, label:'Flight Arrival Time'}, editoptions:{style:"width:150px"}},
+                {name:'arrival_flight_info',index:'arrival_flight_info',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:9, colpos:1, label:'Arrival Flight #'}, editoptions:{style:"width:150px"}},
+                {name:'departure_date',index:'departure_date',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true, date:true}, formoptions:{elmsuffix:'', rowpos:7, colpos:2, label:'Departure Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px"}},
+                {name:'departure_time',index:'departure_time',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:8, colpos:2, label:'Flight Departure Time'}, editoptions:{style:"width:150px"}},
+                {name:'departure_flight_info',index:'departure_flight_info',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:9, colpos:2, label:'Departure Flight #'}, editoptions:{style:"width:150px"}},                    
+                
+                {name:'guest_first_name',index:'guest_first_name',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:15, colpos:1, label:'Guest First Name'}, editoptions:{style:"width:150px"}},                    
+                {name:'guest_last_name',index:'guest_last_name',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:15, colpos:2, label:'Guest Last Name'}, editoptions:{style:"width:150px"}},                    
+
+                {name:'guest_type',index:'guest_type',align:'',hidden:true, editable:true, align:"center", editrules:{custom:true, custom_func:validateGuestType,edithidden:true}, formoptions:{elmsuffix:'', rowpos:14, colpos:1, label:'Guest Type'},edittype:'select',editoptions:{value:"NA:-- Select --;Guest:Guest;Participant:Participant", style:"width:158px", dataEvents:[{type:'change', fn: changeGuestType}]}},
+                {name:'guest_participant_id',index:'guest_participant_id',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:14, colpos:2, label:'Registered Participants'},edittype:'select',editoptions:{value:"<?php echo $this->participant_options;?>", style:"width:158px"}},
+
+                {name:'guest_gender',index:'guest_gender',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:16, colpos:1, label:'Gender'}, edittype:'select',editoptions:{value:"Male:Male;Female:Female", style:"width:158px"}},
+                {name:'guest_dietary_restrictions',index:'guest_dietary_restrictions',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:16, colpos:2, label:'Dietary Restriction'}, editoptions:{style:"width:150px"}},
+
+                {name:'guest_emergency_contact',index:'guest_emergency_contact',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:17, colpos:1, label:'Emergency Contact'}, editoptions:{style:"width:150px"}},
+                {name:'guest_emergency_telephone',index:'guest_emergency_telephone',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:17, colpos:2, label:'Emergency Telephone'}, editoptions:{style:"width:150px"}},
+
+                {name:'guest_arrival_date',index:'guest_arrival_date',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:18, colpos:1, label:'Arrival Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px"}},
+                {name:'guest_arrival_time',index:'guest_arrival_time',align:'',hidden:true, editable:false, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:19, colpos:1, label:'Flight Arrival Time'}, editoptions:{style:"width:150px"}},
+                {name:'guest_arrival_flight_info',index:'guest_arrival_flight_info',align:'',hidden:true, editable:false, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:20, colpos:1, label:'Arrival Flight #'}, editoptions:{style:"width:150px"}},
+                {name:'guest_departure_date',index:'guest_departure_date',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:18, colpos:2, label:'Departure Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px"}},
+                {name:'guest_departure_time',index:'guest_departure_time',align:'',hidden:true, editable:false, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:19, colpos:2, label:'Flight Departure Time'}, editoptions:{style:"width:150px"}},
+                {name:'guest_departure_flight_info',index:'guest_departure_flight_info',align:'',hidden:true, editable:false, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:20, colpos:2, label:'Departure Flight #'}, editoptions:{style:"width:150px"}},                    
+                    
+            ],
+            pager:'#pager-participants',
+            rowNum: 25,
+            rowList: [5, 10, 25, 50, 100, 500],
+            sortname: '1',
+            sortorder: 'asc',
+            viewrecords: true,
+            //editurl: '/accommodations/edit/table/participants/manager_id/<?php echo $this->manager_id;?>/format/html',
+            editurl: '/accommodations/edit/table/participants/format/html',
+            height: 425,
+            width: 880,
+            //multiselect: true,
+            caption: "Participants",
+            loadError: function(xhr, status, error) {
+                    $("#detail-inner").html(status + "<br>" + error);
+                    $("#detail").dialog("open");
+                    return false;
+            },
+            loadComplete: function() {
+            },
+            ondblClickRow: function(id) {
+
+                var editOptions = {
+                    editCaption: 'Edit Participant',
+                    closeAfterEdit:true,
+                    modal: true,
+                    jqModal: true,    
+                    top:$(window).height()/2 - 200,
+                    left:$(window).width()/2 - 453,
+                    width:900,
+                    bottominfo: "<span class='foot-note'>Note, the participant will appear on the hotel rooming list as a guest in your room.  Please do not make a separate reservation for the guest.</span>",
+                    editData:{
+                        id: function() {
+                            var sel_id = pGrid.jqGrid('getGridParam', 'selrow');
+                            var value = pGrid.jqGrid('getCell', sel_id, 'id');
+                            return value;                                                
+                        },                        
+                        test_id: 5
+                    },
+                    afterComplete: function(response, postdata, formid) {
+                        $("#edit-response-body").html(editResponse(response.responseText));
+                        $("#edit-response").dialog("open");
+                    },
+                    beforeShowForm: function() {
+                        
+                        var gpi = function() {
+                            var sel_id = pGrid.jqGrid('getGridParam', 'selrow');
+                            var value = pGrid.jqGrid('getCell', sel_id, 'guest_participant_id');
+                            return value;                                                
+                        };
+                        
+                        beforeShowForm(gpi);
+                    },
+                    onClose: function() {
+                        onClose();
+                    },
+                    beforeInitData: function() {
+                        
+                    },
+                    beforeSubmit: function(postdata, formid) {                        
+                        var ami = $("#admin_manager_id", formid).val();                                            
+                        postdata.manager_id = ami;
+                        console.log("admin manager id: " + ami);  
+
+                        if (ami == 0) {
+                            return [false, "You must select a manager for this operation"];
+                        }
+
+                        return [true, ""];
+                    },
+                    onInitializeForm: function(formid) {
+                        $("#arrival_time", formid).timepicker({
+                            showPeriod: true,
+                            showLeadingZero: true                                                        
+                        });
+                        $("#departure_time", formid).timepicker({
+                            showPeriod: true,
+                            showLeadingZero: true                                                        
+                        });
+                        $("#guest_arrival_time", formid).timepicker({
+                            showPeriod: true,
+                            showLeadingZero: true                                                        
+                        });
+                        $("#guest_departure_time", formid).timepicker({
+                            showPeriod: true,
+                            showLeadingZero: true                                                        
+                        });      
+                        
+                        $("#occupancy", formid).change(function(){
+
+                            var val = $(this).val();
+
+                            if (val == 'Single') {
+                                $("#guest_type").val('NA');
+                                $("#guest_participant_id").val('0');
+                            }
+
+                        });
+                        
+                        $("#telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                        $("#emergency_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                        $("#guest_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                        $("#guest_emergency_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});                        
+                        
+                    }                    
+                };
+
+                var ret = $(this).jqGrid('editGridRow', id, editOptions);
+            }
+
+
+        });
+
+        $("#list-participants").jqGrid(
+            'navGrid',
+            '#pager-participants',
+            {
+                del:true,
+                add:true,
+                edit:true,
+                search:true,
+                view:false
+            },
+            {
+                editCaption: 'Edit Participant',
+                closeAfterEdit:true,
+                modal: true,
+                jqModal: true,    
+                top:$(window).height()/2 - 200,
+                left:$(window).width()/2 - 453,
+                width:900,
+                bottominfo: "<span class='foot-note'>Note, the participant will appear on the hotel rooming list as a guest in your room.  Please do not make a separate reservation for the guest.</span>",
+                editData:{
+                    id: function() {
+                        var sel_id = pGrid.jqGrid('getGridParam', 'selrow');
+                        var value = pGrid.jqGrid('getCell', sel_id, 'id');
+                        return value;                                                
+                    },                                            
+                    test_id: 5
+                },
+                afterComplete: function(response, postdata, formid) {
+                    $("#edit-response-body").html(editResponse(response.responseText));
+                    $("#edit-response").dialog("open");
+                },
+                beforeShowForm: function() {
+                    
+                    var gpi = function() {
+                        var sel_id = pGrid.jqGrid('getGridParam', 'selrow');
+                        var value = pGrid.jqGrid('getCell', sel_id, 'guest_participant_id');
+                        return value;                                                
+                    };
+                    
+                    beforeShowForm(gpi);
+                },
+                onClose: function() {
+                    onClose();
+                },
+                beforeInitData: function() {
+                    
+                },
+                beforeSubmit: function(postdata, formid) {                        
+                    var ami = $("#admin_manager_id", formid).val();                    
+                    postdata.manager_id = ami;
+                    console.log("admin manager id: " + ami);  
+                    
+                    if (ami == 0) {
+                        return [false, "You must select a manager for this operation"];
+                    }
+
+                    return [true, ""];
+                },                
+                onInitializeForm: function(formid) {
+                    $("#arrival_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });
+                    $("#departure_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });
+                    $("#guest_arrival_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });
+                    $("#guest_departure_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    }); 
+                    
+                    $("#occupancy", formid).change(function(){
+
+                        var val = $(this).val();
+
+                        if (val == 'Single') {
+                            $("#guest_type").val('NA');
+                            $("#guest_participant_id").val('0');
+                        }
+
+                    });
+                    
+                    $("#telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    $("#emergency_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    $("#guest_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    $("#guest_emergency_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                                                            
+                }                    
+
+            }, // parms for edit
+            {
+                addCaption: 'Add Participant',
+                closeAfterAdd:true,
+                modal: true,
+                jqModal: true,
+                top:$(window).height()/2 - 200,
+                left:$(window).width()/2 - 453,                    
+                width:900,                    
+                bottominfo: "<span class='foot-note'>Note, the participant will appear on the hotel rooming list as a guest in your room.  Please do not make a separate reservation for the guest.</span>",
+                editData:{
+                    id: 0,
+                    test_id: 5
+                },
+                afterComplete: function(response, postdata, formid) {                        
+                    $("#add-response-body").html(addResponse(response.responseText));
+                    $("#add-response").dialog("open");                        
+                },
+                beforeShowForm: function() {
+                    
+                    var gpi = function() {
+                        var sel_id = pGrid.jqGrid('getGridParam', 'selrow');
+                        var value = pGrid.jqGrid('getCell', sel_id, 'guest_participant_id');
+                        return value;                                                
+                    };
+                    
+                    beforeShowForm(gpi);
+                },
+                onClose: function() {
+                    onClose();
+                },
+                beforeInitData: function() {
+                    
+                },    
+                beforeSubmit: function(postdata, formid) {                                           
+                    var ami = $("#admin_manager_id", formid).val();                    
+                    postdata.manager_id = ami;
+                    console.log("admin manager id: " + ami);  
+                    
+                    if (ami == 0) {
+                        return [false, "You must select a manager for this operation"];
+                    }
+
+                    return [true, ""];
+                },                
+                onInitializeForm: function(formid) {
+                    $("#arrival_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });
+                    $("#departure_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });
+                    $("#guest_arrival_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });
+                    $("#guest_departure_time", formid).timepicker({
+                        showPeriod: true,
+                        showLeadingZero: true                                                        
+                    });    
+                    
+                    $("#occupancy", formid).change(function(){
+
+                        var val = $(this).val();
+
+                        if (val == 'Single') {
+                            $("#guest_type").val('NA');
+                            $("#guest_participant_id").val('0');
+                        }
+
+                    });
+                    
+                    $("#telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    $("#emergency_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    $("#guest_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    $("#guest_emergency_telephone").inputmask("mask", {"mask":"(999) 999-9999", "greedy":"false"});
+                    
+                    
+                }
+
+            }, // parms for add
+            {
+                modal: true,
+                jqModal: true,                    
+                afterComplete: function() {
+
+                },
+                beforeShowForm: function() {
+
+                }
+
+            }, // parms for delete
+            {closeAfterSearch:true,Find:'Find...',multipleSearch:true},
+            {} // parms for view
+        );
+        
+        
+        $("#list-participants").jqGrid(
+            'navGrid',
+            '#pager-participants'
+        ).jqGrid('navButtonAdd', '#pager-participants',
+            {
+                caption: "",
+                buttonicon: "ui-icon-arrowstop-1-s",
+                onClickButton: function() {
+                    //location.replace('<?php echo $this->excel ."participants"; ?>');
+                    location.replace('<?php echo $this->excel; ?>');
+                },
+                position: "last",
+                title: "Excel Download",
+                cursor: "pointer"
+            }
+        ).jqGrid('navButtonAdd', '#pager-participants',
+            {
+                caption: "",
+                buttonicon: "ui-icon-home",
+                onClickButton: function() {
+                    location.replace('/')
+                },
+                position: "last",
+                title: "Home",
+                cursor: "pointer"
+            }
+        );
+        
+        
+        //========================================
+        
+        $("#tabs").tabs();      
+        
+        $("#add-response").dialog({
+            autoOpen:false,
+            modal:true,
+            position:{ my: "center", at: "center", of: window }
+        });
+
+        $("#edit-response").dialog({
+            autoOpen:false,
+            modal:true,
+            position:{ my: "center", at: "center", of: window }
+        });
+        
+    });
+   
+})(jQuery);
+
+</script>
+
+<div id="index-content">
+    
+        
+    <div id="tabs">
+        <ul>            
+            <li><a href="#tabs-1">Managers</a></li>
+            <li><a href="#tabs-2">Participants</a></li>
+        </ul>
+                
+        <div id="tabs-1">
+
+            <table id="list-managers"></table>
+            <div id="pager-managers"></div>
+
+        </div>
+
+        <div id="tabs-2">
+
+            <table id="list-participants"></table>
+            <div id="pager-participants"></div>
+
+        </div>
+    </div>
+    
+</div>
+
+<div id="detail" title="User Detail">
+    <div id="detail-inner"></div>
+</div>
+
+<div id="edit-response" title="Change Status">
+    <div id="edit-response-body"></div>
+</div>
+
+<div id="add-response" title="Add Status">
+    <div id="add-response-body"></div>
+</div>
+

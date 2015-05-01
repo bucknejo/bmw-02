@@ -1,0 +1,231 @@
+<style type="text/css">
+    
+    #index-content {margin-bottom:15px;padding:10px;width:918px;border:1px solid #ccc;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;}
+    #index-image-1 {}
+    
+    #guest-information {display:none;}
+    
+
+</style>
+
+<script type="text/javascript">
+    
+;(function($){
+ 
+    $(document).ready(function(){
+        
+        var user = <?php echo json_encode($this->users);?>;
+        var guest = <?php echo json_encode($this->guest);?>;
+        
+        if (user.length > 0) {
+            $("#first_name").text(user[0].first_name);
+            $("#last_name").text(user[0].last_name);
+            $("#email").text(user[0].email);
+            $("#check_in_date").text(user[0].check_in_date);
+            $("#check_out_date").text(user[0].check_out_date);
+            $("#hotel").text(user[0].hotel);
+            $("#room_type").text(user[0].room_type);
+            $("#occupancy").text(user[0].occupancy);
+            $("#nickname").text(user[0].nickname);
+            $("#center").text(user[0].center);
+            $("#region").text(user[0].region);
+            $("#gender").text(user[0].gender);
+            $("#telephone").text(user[0].telephone);
+            $("#emergency_contact").text(user[0].emergency_contact);
+            $("#emergency_telephone").text(user[0].emergency_telephone);
+            $("#dietary_restrictions").text(user[0].dietary_restrictions);
+            $("#guest_name").text(user[0].guest_name);
+        }
+        
+        console.log("Guest Length: " + guest.length);
+        
+        if (guest.length > 0) {
+                        
+            $("#guest_first_name").text(guest[0].first_name);
+            $("#guest_last_name").text(guest[0].last_name);
+            $("#guest_email").text(guest[0].email);
+            $("#guest_nickname").text(guest[0].nickname);
+            $("#guest_center").text(guest[0].center);
+            $("#guest_region").text(guest[0].region);
+            $("#guest_gender").text(guest[0].gender);
+            $("#guest_telephone").text(guest[0].telephone);
+            $("#guest_emergency_contact").text(guest[0].emergency_contact);
+            $("#guest_emergency_telephone").text(guest[0].emergency_telephone);
+            $("#guest_dietary_restrictions").text(guest[0].dietary_restrictions);
+
+            $("#guest-information").show();
+        }
+        
+    });
+   
+})(jQuery);
+
+</script>
+<div id="index-content">
+    
+    <img src="/images/bmw-image-02-crop-01.jpg" alt="" id="index-image-1"/>
+    
+    <h3>Hotel Accommodations</h3>
+
+    <p>
+        Congratulations!  You have successfully registered for the event.  Please review the details below.
+    </p>
+    
+    <h4>Participant Information</h4>
+    
+    <!-- user information -->
+    <table>
+        <tr>
+            <td><span class="site-label-1">First Name:</span></td>
+            <td><span class="site-label-2" id="first_name"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Last Name:</span></td>
+            <td><span class="site-label-2" id="last_name"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Email:</span></td>
+            <td><span class="site-label-2" id="email"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Arrival Date:</span></td>
+            <td><span class="site-label-2" id="check_in_date"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Departure Date:</span></td>
+            <td><span class="site-label-2" id="check_out_date"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Hotel:</span></td>
+            <td><span class="site-label-2" id="hotel"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Room Type:</span></td>
+            <td><span class="site-label-2" id="room_type"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Occupancy:</span></td>
+            <td><span class="site-label-2" id="occupancy"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Nickname:</span></td>
+            <td><span class="site-label-2" id="nickname"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Center:</span></td>
+            <td><span class="site-label-2" id="center"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Region:</span></td>
+            <td><span class="site-label-2" id="region"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Gender:</span></td>
+            <td><span class="site-label-2" id="gender"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Telephone:</span></td>
+            <td><span class="site-label-2" id="telephone"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Emergency Contact:</span></td>
+            <td><span class="site-label-2" id="emergency_contact"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Emergency Telephone:</span></td>
+            <td><span class="site-label-2" id="emergency_telephone"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Dietary Restrictions:</span></td>
+            <td><span class="site-label-2" id="dietary_restrictions"></span></td>
+            <td></td>                
+        </tr>
+        <tr>
+            <td><span class="site-label-1">Guest Name:</span></td>
+            <td><span class="site-label-2" id="guest_name"></span></td>
+            <td></td>                
+        </tr>
+    </table>
+    
+    <!-- guest information -->
+    <div id="guest-information">
+        
+        <h4>Guest Participant Information</h4>
+        
+        <table>
+            <tr>
+                <td><span class="site-label-1">First Name:</span></td>
+                <td><span class="site-label-2" id="guest_first_name"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Last Name:</span></td>
+                <td><span class="site-label-2" id="guest_last_name"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Email:</span></td>
+                <td><span class="site-label-2" id="guest_email"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Nickname:</span></td>
+                <td><span class="site-label-2" id="guest_nickname"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Center:</span></td>
+                <td><span class="site-label-2" id="guest_center"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Region:</span></td>
+                <td><span class="site-label-2" id="guest_region"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Gender:</span></td>
+                <td><span class="site-label-2" id="guest_gender"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Telephone:</span></td>
+                <td><span class="site-label-2" id="guest_telephone"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Emergency Contact:</span></td>
+                <td><span class="site-label-2" id="guest_emergency_contact"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Emergency Telephone:</span></td>
+                <td><span class="site-label-2" id="guest_emergency_telephone"></span></td>
+                <td></td>                
+            </tr>
+            <tr>
+                <td><span class="site-label-1">Dietary Restrictions:</span></td>
+                <td><span class="site-label-2" id="guest_dietary_restrictions"></span></td>
+                <td></td>                
+            </tr>
+        </table>
+        
+        
+    </div>
+    
+</div>

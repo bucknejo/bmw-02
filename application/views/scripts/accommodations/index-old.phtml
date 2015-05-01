@@ -1,0 +1,388 @@
+<style type="text/css">
+    
+    #index-content {margin-bottom:15px;padding:10px;width:918px;border:1px solid #ccc;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;}
+    #index-image-1 {}
+    
+    #form-container {position:relative;width:100%;height:450px;}
+    #form-container table {position:absolute;top:5px;left:0px;}
+    
+
+    #occupancy-dialog {display:none;padding:20px;}
+    #hotel-dialog {display:none;padding:20px;}
+    #page-message {display:none;padding:20px;font-size:12px;font-weight:bold;}
+
+</style>
+
+<script type="text/javascript">
+    
+;(function($){
+ 
+    $(document).ready(function(){
+        
+        
+        $("#occupancy").change(function(event) {
+            
+            var val = $(this).val();
+            
+            if (val == 'Double') {
+                $("#occupancy-dialog").dialog("open");
+            }
+            if (val == 'Single') {
+                $("#page-message").html("By choosing Single Occupancy you will be removing any existing guest information.");
+                $("#page-message").dialog("open");
+            }
+            
+        });
+                
+        $("#occupancy-dialog").dialog({
+            autoOpen: false,
+            height: 450,
+            width: 550,
+            modal: true,
+            open: function() {
+                $("#guest_type").trigger('change');
+            }
+            //buttons: {'OK': function(){$(this).dialog("close");}}
+        });
+        
+        $("#hotel").change(function(event) {
+                        
+            if ($(this).val() == 'Marriott Greenville') {
+                $("#room_type option[value='1 King Bed']").prop('disabled', '');
+                $("#room_type option[value='2 Double Beds']").prop('disabled', '');
+                $("#room_type option[value='2 Queen Beds']").prop('disabled', 'disabled');
+                $("#room_type").val('1 King Bed').prop('selected', true);
+            }
+            
+            if ($(this).val() == 'Courtyard Marriott Greenville') {
+                $("#room_type option[value='1 King Bed']").prop('disabled', 'disabled');
+                $("#room_type option[value='2 Double Beds']").prop('disabled', 'disabled');
+                $("#room_type option[value='2 Queen Beds']").prop('disabled', '');
+                $("#room_type").val('2 Queen Beds').prop('selected', true);
+            }
+                        
+        });
+                                        
+        $("#page-message").dialog({
+            autoOpen: false,
+            height: 200,
+            width: 400,
+            buttons: {'OK': function(){$(this).dialog("close");}}
+        });
+        
+        var users = <?php echo json_encode($this->users);?>;
+        
+        if (users.length > 0) {
+            
+            $("#first_name").val(users[0].first_name);
+            $("#last_name").val(users[0].last_name);
+            $("#nickname").val(users[0].nickname);
+            $("#center").val(users[0].center).prop('selected', true);
+            $("#region").val(users[0].region).prop('selected', true);
+            $("#gender").val(users[0].gender).prop('selected', true);
+            
+            $("#email").val(users[0].email);
+            $("#telephone").val(users[0].telephone);
+            $("#emergency_contact").val(users[0].emergency_contact);
+            $("#emergency_telephone").val(users[0].emergency_telephone);
+            $("#dietary_restrictions").val(users[0].dietary_restrictions);
+
+            $("#hotel").val(users[0].hotel).prop('selected', true);
+            $("#room_type").val(users[0].room_type).prop('selected', true);
+            $("#occupancy").val(users[0].occupancy).prop('selected', true);
+            
+            $("#guest_type").val(users[0].guest_type).prop('selected', true);
+            
+            var guest_name = users[0].guest_name;
+            $("#personal_guest_name").val(guest_name);
+            $("#participant_guest_name").val(guest_name);
+            
+            $("#registration_status").val(users[0].registration_status);
+                        
+            $("#check_in_date").val(Date.parse(users[0].check_in_date).toString('MM-dd-yyyy'));  
+            $("#check_out_date").val(Date.parse(users[0].check_out_date).toString('MM-dd-yyyy'));  
+            
+            $("#hotel").trigger('change');
+                        
+        }
+        
+        $("#check_in_date").datepicker({
+            dateFormat: "mm-dd-yy",
+            defaultDate: $(this).val()
+            
+//            maxDate: "09-30-2012",
+//            onSelect: function(dateText, inst) {
+//                var x = Date.parse("2012-09-30");
+//                var d = Date.parse(dateText);
+//                
+//                if (d < x) {
+//                    var z = 'You have selected a check in date earlier than the program start date.  You will be responsible for the additional cost.';
+//                    $("#page-message").html(z);
+//                    $("#page-message").dialog("open");
+//                }
+//            }
+        });
+        
+        $("#check_out_date").datepicker({
+            dateFormat: "mm-dd-yy",
+            defaultDate: $(this).val()
+            
+//            minDate: "10-02-2012",
+//            onSelect: function(dateText, inst) {
+//                var x = Date.parse("2012-10-02");
+//                var d = Date.parse(dateText);
+//                
+//                if (d > x) {
+//                    var z = 'You have selected a check out date later than the program end date.  You will be responsible for the additional cost.';
+//                    $("#page-message").html(z);
+//                    $("#page-message").dialog("open");
+//                }
+//            }
+        });
+        
+        $("#submit-accommodations").button().click(function(){
+            $("#form-accommodations").submit();
+        });
+        
+        $("#form-accommodations").validate({
+            rules: {
+                check_in_date: {
+                    required:true,
+                    dateISO:false
+                },
+                check_out_date: {
+                    required:true,
+                    dateISO:false
+                }
+            },
+            messages: {
+                check_in_date: {
+                    required: "Check-in date required.",
+                    dateISO: "Enter: mm-dd-yyyy"
+                },
+                check_out_date: {
+                    required: "Check-out date required.",
+                    dateISO: "Enter: mm-dd-yyyy"                    
+                }
+            }
+            
+        });
+        
+        var pos = 2;
+        var a = $("#side-list").find("a");
+        a.each(function(i){            
+            if (i <= pos) {
+                $(this).css({"color":"#333333", "font-weight":"normal"});        
+            }
+            if (i == pos) {
+                $(this).css({"color":"#336699", "font-weight":"bold"});        
+            }
+            if (i > pos) {
+                $(this).css({"color":"#333333", "font-weight":"normal"});        
+            }
+        });
+                
+        $("#telephone").mask("(999) 999-9999");
+        $("#emergency_telephone").mask("(999) 999-9999");
+        $("#guest_telephone").mask("(999) 999-9999");
+        $("#guest_emergency_telephone").mask("(999) 999-9999");        
+        
+    });
+   
+})(jQuery);
+
+</script>
+
+<div id="index-content">
+    
+    <img src="/images/bmw-image-02-crop-01.jpg" alt="" id="index-image-1"/>
+
+    <h3>Hotel Accommodations</h3>
+
+    <p>
+        Rooms have been reserved for the participants at the Marriott Greenville (room rate:  $111.00 + $11.10 (tax) = $122.10 per night)  The guest room rate includes breakfast the morning of the event and internet.  Room type subject to availability.
+    </p>
+    
+    <!--
+    <p>
+        The Marriott Greenville is the main hotel for the event.  Shuttle transportation will be provided to and from the Courtyard Marriott Greenville which is located across the street.
+    </p>
+    -->
+        
+    <div id="form-container">
+
+        <form action="/accommodations" method="post" id="form-accommodations">
+            <table border="0" width="55%">
+                
+                <tr>
+                    <td><span class="site-label-1">First Name:</span></td>
+                    <td><input type="text" class="site-text-1 required" name="first_name" id="first_name" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Last Name:</span></td>
+                    <td><input type="text" class="site-text-1 required" name="last_name" id="last_name" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Participant Nickname:</span></td>
+                    <td><input type="text" class="site-text-1" name="nickname" id="nickname" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Center:</span></td>
+                    <td><input type="text" class="site-text-1 required" name="center" id="center" value="" /></td>
+                    <!--
+                    <td>
+                        <select class="site-select-1 required" name="center" id="center">
+                            <?php if(count($this->centers)>0):?>
+                            <?php foreach($this->centers as $center):?>
+                            <option value="<?php echo $center;?>"><?php echo $center;?></option>
+                            <?php endforeach;?>
+                            <?php endif;?>                                                        
+                        </select>
+                    </td>
+                    -->
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Region:</span></td>
+                    <td>
+                        <select class="site-select-1 required" name="region" id="region">
+                            <?php if(count($this->regions)>0):?>
+                            <?php foreach($this->regions as $region):?>
+                            <option value="<?php echo $region;?>"><?php echo $region;?></option>
+                            <?php endforeach;?>
+                            <?php endif;?>                            
+                        </select>
+                    </td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Gender:</span></td>
+                    <td>
+                        <select class="site-select-1" name="gender" id="gender">
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                        <!--
+                        <span class="site-label-2">(information needed for gift and we get a few "Chris's")</span>
+                        -->
+                    </td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Email:</span></td>
+                    <td><input type="text" class="site-text-1 required email" name="email" id="email" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Telephone:</span></td>
+                    <td><input type="text" class="site-text-1 required" name="telephone" id="telephone" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Emergency Contact:</span></td>
+                    <td><input type="text" class="site-text-1 required" name="emergency_contact" id="emergency_contact" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Emergency Telephone:</span></td>
+                    <td><input type="text" class="site-text-1 required" name="emergency_telephone" id="emergency_telephone" value="" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Dietary Restriction(s):</span></td>
+                    <td><input type="text" class="site-text-1" name="dietary_restrictions" id="dietary_restrictions" value="" /></td>
+                    <td></td>                
+                </tr>
+                
+                
+                <tr>
+                    <td><span class="site-label-1">Occupancy:</span></td>
+                    <td>
+                        <select class="site-select-1" name="occupancy" id="occupancy">
+                            <?php if(count($this->occupancy)>0):?>
+                            <?php foreach($this->occupancy as $oType):?>
+                            <option value="<?php echo $oType;?>"><?php echo $oType;?></option>
+                            <?php endforeach;?>
+                            <?php endif;?>
+                        </select>
+                    </td>
+                    <td></td>                
+                    
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Hotel:</span></td>
+                    <td>
+                        <select class="site-select-1" name="hotel" id="hotel">
+                            <?php if(count($this->hotels)):?>
+                            <?php foreach($this->hotels as $hotel):?>
+                            <option value="<?php echo $hotel;?>"><?php echo $hotel;?></option>
+                            <?php endforeach;?>
+                            <?php endif;?>                            
+                        </select>
+                    </td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Room Type:</span></td>
+                    <td>
+                        <select class="site-select-1" name="room_type" id="room_type">
+                            <?php if(count($this->room_types)):?>
+                            <?php foreach($this->room_types as $room_type):?>
+                            <option value="<?php echo $room_type;?>"><?php echo $room_type;?></option>
+                            <?php endforeach;?>
+                            <?php endif;?>                                    
+                        </select>                
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Arrival Date:</span></td>
+                    <td><input type="text" class="site-text-2 required" name="check_in_date" id="check_in_date" value="" readonly="true" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td><span class="site-label-1">Departure Date:</span></td>
+                    <td><input type="text" class="site-text-2 required" name="check_out_date" id="check_out_date" value="" readonly="true" /></td>
+                    <td></td>                
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td align="left"><button class="" name="" id="submit-accommodations">Submit</button></td>
+                    <td></td>                
+                </tr>
+            </table>
+            
+            
+        </form>
+
+    </div>
+    
+    <p>
+        All reservations must be made by <b>Friday, August 16th</b>.  We are unable to confirm sleeping room requests received after this date.
+    </p>
+    
+    <p>
+        Arrival / Departure Changes<br>
+        If you need to make a change in hotel reservations, please email Barbara Gualtieri at Barbara.gualtieri@bmwnaext.com directly with your new check-in and/or out date.  The Marriott Greenville will have confirmation numbers available after September 12th. Please call the hotels directly if you require a confirmation number.
+    </p>
+    
+    <!-- check with Cathy on this one
+    <p>
+        The Marriott Greenville and the Courtyard Marriott Greenville will have confirmation numbers available after September 15th.  Please call the hotels directly if you require a confirmation number.
+    </p>
+    -->
+
+    
+    
+</div>
+
+<div id="occupancy-dialog" title="Occupancy">
+    <?php include_once('guest-info.phtml');?>
+</div>
+
+<div id="page-message" title="BMW">
+    
+</div>

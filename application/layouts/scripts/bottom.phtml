@@ -1,0 +1,86 @@
+<?php 
+
+    $role_id = 9999;
+    $auth = Zend_Auth::getInstance();
+    if ($auth->hasIdentity()) {
+        $role_id = $auth->getIdentity()->role_id;
+    }
+    
+    $config = Zend_Registry::get('config');    
+
+    $name = $config->site->admin->name;
+    $phone = $config->site->admin->phone;
+    $email = $config->site->admin->email;
+    
+    $lib = new BMW_Lib_Lib();
+    $contact_info = $lib->adminContact($name, $email, $phone);
+    
+    $year = $config->project->year;
+    
+?>
+
+<style type="text/css">
+    /*#bottom-container {height:60px;border:1px solid #0088ce;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;margin-bottom:25px;}*/
+    #bottom-container {height:60px;border:1px solid #c8c8c8;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;margin-bottom:25px;}
+    #bottom-left {float:left;padding:15px;}
+    #bottom-right {float:right;color:#ccc;padding:15px;}
+    
+    /*
+    a.bottom-link {text-decoration:none;color:#333333;padding-left:5px;font-size:11px;}
+    a.bottom-link:link {color:#333333;}
+    a.bottom-link:hover {color:#0088ce;}
+    */
+    a.bottom-link {text-decoration:none;color:#333333;padding-left:5px;font-size:11px;}
+    a.bottom-link:link {color:#333333;}
+    a.bottom-link:hover {color:#1c68d1;}
+    
+    a.bottom-link-gray {text-decoration:none;color:#ccc;}
+    a.bottom-link-gray:link {}
+    a.bottom-link-gray:hover {color:#333333;}
+    
+</style>
+
+<script type="text/javascript">
+    
+;(function($){
+ 
+    $(document).ready(function(){
+        
+        $("#bmw-na-home").click(function(event){
+            event.preventDefault();
+            var url = $(this).prop('href');
+            window.open(url, "BMW");            
+            return false;
+        });
+        
+    });
+   
+})(jQuery);
+    
+</script>
+
+<div id="bottom-container">
+    
+    <span id="bottom-left">
+        <!--
+        <a href="/" class="bottom-link">Home</a>
+        <a href="/agenda" class="bottom-link">Agenda</a>
+        |<a href="/accommodations" class="bottom-link">Hotel Accommodations</a>
+        -->
+        <a href="/agenda" class="bottom-link">Agenda</a>
+        |<a href="/accommodations" class="bottom-link">Hotel Accommodations</a>
+        |<a href="mailto:<?php echo $config->site->admin->email;?>" class="bottom-link">Contact</a>
+        
+        <?php if ($role_id == 1): ?> 
+            |<a href="/admin" class="bottom-link">Admin</a>            
+        <?php endif;?>
+            
+        <?php echo $contact_info;?>            
+        
+    </span>
+    <span id="bottom-right"><a href="http://www.bmwusa.com" class="bottom-link" id="bmw-na-home">&copy; <?php echo $year;?> BMW of North America, LLC.</a></span>
+    
+    
+    
+
+</div>
