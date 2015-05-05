@@ -30,16 +30,35 @@
     .form-spacing-button {margin:5px 0px 5px 0px;}
     
     #plus-sign {background-color: #1c68d1; color: #ffffff; padding:1px 3px 1px 3px;font-weight:bold;}
-
+    
+    #plupload {
+        display: none;
+        position:absolute;
+        top:175px;
+        left: 175px;
+        /*height:400px;*/
+        /*width:700px;*/
+        background:#fff;
+        border:1px solid #c8c8c8;
+        padding:10px;
+        z-index: 951;
+    }
+    
 </style>
 
 <script type="text/javascript">
-    
+
+    var post = {
+        itinerary_type: '',
+        document: -1,
+        document_name: '',
+        manager_id:<?php echo $this->manager_id;?>
+    };
+  
     ;(function($) {
         
         $(document).ready(function(){
-            
-            
+                        
             function dateElement(el) {
                 $(el).datepicker({
                     //showOn: "button",
@@ -225,10 +244,17 @@
                 
             }
             
+            function uploadItinerary() {
+                
+                var ui = "<div id='upload-itinerary' style='font-size:9px;'>Upload Itinerary</div>";
+                return ui;
+            }
+            
             function beforeShowForm() {
                 $('<tr class="FormData" id="no-1"><td colspan=4><div class="form-segment">Participant Information</div><hr /></td></tr>').insertBefore('#tr_first_name');                
-                $('<tr class="FormData" id="no-2"><td colspan=4><div class="form-segment">Guest Information</div><div>Note:  These fields are to be selected <u>only</u> if participant is bringing a guest.</div><hr /></td></tr>').insertBefore('#tr_guest_type');                
-                $('<tr class="FormData" id="no-3"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_flight_info');                                
+                $('<tr class="FormData" id="no-2"><td><div class="form-spacing-button">'+uploadItinerary()+'</div></td><td><div id="uploaded-itinerary-participant"></div></td><td colspan="2">&nbsp;</td></tr>').insertBefore('#tr_guest_type');                               
+                $('<tr class="FormData" id="no-3"><td colspan=4><div class="form-segment">Guest Information</div><div>Note:  These fields are to be selected <u>only</u> if participant is bringing a guest.</div><hr /></td></tr>').insertBefore('#tr_guest_type');                
+                $('<tr class="FormData" id="no-4"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_flight_info');                                
                 //$('<tr class="FormData" id="no-3"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_date');                                
                 
                 $("#clear-guest-information").button().click(function(){
@@ -251,14 +277,70 @@
 
                 });
                 
-                                                
+                $('#upload-itinerary').button().click(function() {
+                    console.log('upload itinerary');
+                    post.itinerary_type = 'participant';
+                    $("#plupload").show();
+                    
+                });
+                                                                
                 changeGuestType();
+                
+                var rid = $("#participants").jqGrid('getGridParam', 'selrow');
+                var row = $("#participants").jqGrid().getRowData(rid);
+                var di = row["document_id"];
+                var dn = row["document_name"];
+                
+                if (di > 0) {
+                    
+                    post.document = di;
+                    post.document_name = dn;
+                    
+                    var download = $('<a>', {
+                        class: 'site-link-2',
+                        href: '/accommodations/download/document/' + post.document,
+                        text: post.document_name
+                    });
+                    var del = $('<a>', {
+                        class: 'site-link-2',
+                        href: '/accommodations/delete/document/' + post.document + '/format/json',
+                        text: ' X '
+                    }).click(function(e){
+                        e.preventDefault();
+
+                        $.ajax({
+                            url: $(this).attr('href'),
+                            asynch: false,
+                            cache: false,
+                            dataType: 'json',
+                            type: 'post',
+                            beforeSend: function() {},
+                            complete: function() {},
+                            error: function(data, errorThrown) {},
+                            success: function(response) {                                    
+                                console.log('r:' + JSON.stringify(response));
+                                var r = JSON.parse(response.response);
+                                var d = r.document;
+                                console.log('document: ' + d);
+                                post.document = -1;
+                                $("#uploaded-itinerary-participant").empty();
+                            }
+                        });
+
+                        return false;
+                    });
+                    $("#uploaded-itinerary-participant").empty().append(download).append(del);
+                    
+                }
+                
+                console.log('document info: ' + JSON.stringify(row));
             }
             
             function onClose() {
                 $("#no-1").remove();                
                 $("#no-2").remove();                
                 $("#no-3").remove();                
+                $("#no-4").remove();                
             }
             
             $('#guest_type').live().change(function(){
@@ -370,7 +452,10 @@
                     'Guest Arrival Flight Info',
                     'Guest Departure Date',
                     'Guest Departure Time',
-                    'Guest Departure Flight Info'
+                    'Guest Departure Flight Info',
+                    'Link ID',
+                    'Document ID',
+                    'Document Name'
                 ],
                 colModel: [
                     {name:'index',index:'index',align:'',hidden:true},
@@ -431,6 +516,10 @@
                     {name:'guest_departure_time',index:'guest_departure_time',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:19, colpos:2, label:'Flight Departure Time'}, editoptions:{style:"width:150px"}},
                     {name:'guest_departure_flight_info',index:'guest_departure_flight_info',align:'',hidden:true, editable:true, align:"center", editrules:{edithidden:true}, formoptions:{elmsuffix:'', rowpos:20, colpos:2, label:'Departure Flight #'}, editoptions:{style:"width:150px"}},                    
                     
+                    {name:'link_id', index:'link_id', hidden:true, editable: false},
+                    {name:'document_id', index:'document_id', hidden:true, editable:false, editrules: {edithidden:true}},
+                    {name:'document_name', index:'document_name', hidden:true, editable:false, editrules: {edithidden:true}}
+                    
                 ],
                 pager:'#pager_participants',
                 rowNum: 25,
@@ -460,9 +549,10 @@
                         left:$(window).width()/2 - 453,
                         width:900,
                         bottominfo: "<span class='foot-note'>Note, if double occupancy, this individual will appear as a guest in your room.  Please do not make a separate reservation.</span>",
-                        editData:{
-                            manager_id:<?php echo $this->manager_id;?>
-                        },
+                        editData:$.extend({}, post, {manager_id:<?php echo $this->manager_id;?>}),
+                        onclickSubmit: function() {
+                            return $.extend({}, post);
+                        },                        
                         afterComplete: function(response, postdata, formid) {                            
                             $("#edit-response-body").html(editResponse(response.responseText));
                             $("#edit-response").dialog("open");
@@ -538,8 +628,9 @@
                     left:$(window).width()/2 - 453,
                     width:900,
                     bottominfo: "<span class='foot-note'>Note, if double occupancy, this individual will appear as a guest in your room.  Please do not make a separate reservation.</span>",
-                    editData:{
-                        manager_id:<?php echo $this->manager_id;?>
+                    editData:{manager_id:<?php echo $this->manager_id;?>},
+                    onclickSubmit: function() {
+                        return $.extend({}, post);
                     },
                     afterComplete: function(response, postdata, formid) {
                         $("#edit-response-body").html(editResponse(response.responseText));
@@ -600,8 +691,9 @@
                     left:$(window).width()/2 - 453,                    
                     width:900,                    
                     bottominfo: "<span class='foot-note'>Note, if double occupancy, this individual will appear as a guest in your room.  Please do not make a separate reservation.</span>",
-                    editData:{
-                        manager_id:<?php echo $this->manager_id;?>
+                    editData:{manager_id:<?php echo $this->manager_id;?>},
+                    onclickSubmit: function() {
+                        return $.extend({}, post);
                     },
                     afterComplete: function(response, postdata, formid) {                        
                         $("#add-response-body").html(addResponse(response.responseText));
@@ -700,8 +792,7 @@
                 $("#help").hide(500);
                 return false;
             });
-                        
-    
+            
         });
         
         
@@ -726,7 +817,7 @@
                         <a href="#" class="site-link-1 anchor-help" style="">Help</a>
                     </td>
                     <td>
-                        <span style="color:#0088ce;padding:0px 3px 3px 3px;font-size:11px;">|</span>
+                        <span style="color:#1c68d1;padding:0px 3px 3px 3px;font-size:11px;">|</span>
                     </td>                    
                     <td>
                         <a href="/accommodations/confirmation" id="print-confirm" class="site-link-1" style="">Print Confirmation</a>            
@@ -782,4 +873,6 @@
     </div>
 </div>
 
-
+<div id="plupload" title="Upload Itinerary" style="font-size:12px;">
+    <?php include('plupload.phtml');?>
+</div>

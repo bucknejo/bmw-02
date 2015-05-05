@@ -36,29 +36,24 @@ a img {border:none;}
 
 a.site-link {text-decoration:none;color:#333333;}
 a.site-link:link {color:#333333;}
-/*a.site-link:hover {color:#0088ce;}*/
 a.site-link:hover {color:#1c68d1;}
 
 a.site-link-1 {text-decoration:none;color:#333333;font-size:11px;}
 a.site-link-1:link {text-decoration:none;color:#333333;font-size:11px;}
-/*a.site-link-1:hover {text-decoration:none;color:#0088ce;font-size:11px;}*/
 a.site-link-1:hover {text-decoration:none;color:#1c68d1;font-size:11px;}
 
-a.site-link-2 {text-decoration:none;color:#0088ce;font-size:11px;}
-/*a.site-link-2:link {text-decoration:none;color:#0088ce;font-size:11px;}*/
+a.site-link-2 {text-decoration:none;color:#1c68d1;font-size:11px;}
 a.site-link-2:link {text-decoration:none;color:#1c68d1;font-size:11px;}
 a.site-link-2:hover {text-decoration:none;color:#333333;font-size:11px;}
 
-/*.admin-contact {font-size:11px;color:#0088ce;font-style:italic;padding:5px 0px 0px 5px;}*/
 .admin-contact {font-size:11px;color:#1c68d1;font-style:italic;padding:5px 0px 0px 5px;}
 a.admin-link {text-decoration:none;color:#333333;}
 a.admin-link:link {color:#333333;}
-/*a.admin-link:hover {color:#0088ce;}*/
 a.admin-link:hover {color:#1c68d1;}
 
 
 .site-label-1 {font-size:11px;font-weight:bold;}
-.site-label-2 {font-size:11px;color:#0088ce;font-style:italic;}
+.site-label-2 {font-size:11px;color:#1c68d1;font-style:italic;}
 .site-label-3 {font-size:11px;color:#cc3333;padding:5px;font-weight:bold;}
 .site-text-1 {width:200px;border:1px solid #1c68d1;width:200px;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;}
 .site-text-2 {width:50px;border:1px solid #1c68d1;width:200px;-moz-box-shadow: 0 0 5px #ddd;-webkit-box-shadow: 0 0 5px#ddd;box-shadow: 0 0 5px #ddd;}
