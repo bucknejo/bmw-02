@@ -31,12 +31,14 @@
             chunk_size: '1mb',
 
             // Resize images on clientside if we can
+            /*
             resize : {
                 width : 200,
                 height : 200,
                 quality : 90,
                 crop: true // crop to exact dimensions
             },
+            */
 
             // Specify what files to browse for
             filters : [
@@ -69,6 +71,8 @@
                 },
                 UploadFile: function(up, file) {
                     console.log('[UploadFile]', file);
+                    post.document_name = file.name;
+                    up.settings.multipart_params = $.extend({}, post);
                 },
                 BeforeUpload: function(up) {
                     console.log('post: ' + JSON.stringify(post)); 

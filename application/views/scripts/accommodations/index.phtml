@@ -52,7 +52,8 @@
         itinerary_type: '',
         document: -1,
         document_name: '',
-        manager_id:<?php echo $this->manager_id;?>
+        manager_id:<?php echo $this->manager_id;?>,
+        participant_id: -1
     };
   
     ;(function($) {
@@ -250,11 +251,11 @@
                 return ui;
             }
             
-            function beforeShowForm() {
-                $('<tr class="FormData" id="no-1"><td colspan=4><div class="form-segment">Participant Information</div><hr /></td></tr>').insertBefore('#tr_first_name');                
-                $('<tr class="FormData" id="no-2"><td><div class="form-spacing-button">'+uploadItinerary()+'</div></td><td><div id="uploaded-itinerary-participant"></div></td><td colspan="2">&nbsp;</td></tr>').insertBefore('#tr_guest_type');                               
-                $('<tr class="FormData" id="no-3"><td colspan=4><div class="form-segment">Guest Information</div><div>Note:  These fields are to be selected <u>only</u> if participant is bringing a guest.</div><hr /></td></tr>').insertBefore('#tr_guest_type');                
-                $('<tr class="FormData" id="no-4"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_flight_info');                                
+            function beforeShowForm(type) {
+                $('<tr class="FormData" id="no-1"><td colspan="4"><div class="form-segment">Participant Information</div><hr /></td></tr>').insertBefore('#tr_first_name');                
+                $('<tr class="FormData" id="no-2"><td colspan="4" align="center"><div style="margin:10px;"><div class="form-spacing-button" style="display:inline-block;">'+uploadItinerary()+'</div><div id="uploaded-itinerary-participant" style="display:inline-block;padding-left:5px;"></div><div><label for="intinerary-participant-affirm" style="color:#333;margin-right:3px;">I affirm I will not submit an itinerary</label><input type="checkbox" id="intinerary-participant-affirm"/></div></div></td></tr>').insertBefore('#tr_guest_type');                               
+                $('<tr class="FormData" id="no-3"><td colspan="4"><div class="form-segment">Guest Information</div><div>Note:  These fields are to be selected <u>only</u> if participant is bringing a guest.</div><hr /></td></tr>').insertBefore('#tr_guest_type');                
+                $('<tr class="FormData" id="no-4"><td colspan="4"><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_flight_info');                                
                 //$('<tr class="FormData" id="no-3"><td colspan=4><div class="form-spacing-button">'+clearGuestInformation()+'</div></td></tr>').insertAfter('#tr_guest_arrival_date');                                
                 
                 $("#clear-guest-information").button().click(function(){
@@ -286,52 +287,60 @@
                                                                 
                 changeGuestType();
                 
-                var rid = $("#participants").jqGrid('getGridParam', 'selrow');
-                var row = $("#participants").jqGrid().getRowData(rid);
-                var di = row["document_id"];
-                var dn = row["document_name"];
+                $("#uploaded-itinerary-participant").empty();
                 
-                if (di > 0) {
+                if (type === 0) {
                     
-                    post.document = di;
-                    post.document_name = dn;
-                    
-                    var download = $('<a>', {
-                        class: 'site-link-2',
-                        href: '/accommodations/download/document/' + post.document,
-                        text: post.document_name
-                    });
-                    var del = $('<a>', {
-                        class: 'site-link-2',
-                        href: '/accommodations/delete/document/' + post.document + '/format/json',
-                        text: ' X '
-                    }).click(function(e){
-                        e.preventDefault();
+                    var rid = $("#participants").jqGrid('getGridParam', 'selrow');
+                    var row = $("#participants").jqGrid().getRowData(rid);
+                    var di = row["document_id"];
+                    var dn = row["document_name"];
 
-                        $.ajax({
-                            url: $(this).attr('href'),
-                            asynch: false,
-                            cache: false,
-                            dataType: 'json',
-                            type: 'post',
-                            beforeSend: function() {},
-                            complete: function() {},
-                            error: function(data, errorThrown) {},
-                            success: function(response) {                                    
-                                console.log('r:' + JSON.stringify(response));
-                                var r = JSON.parse(response.response);
-                                var d = r.document;
-                                console.log('document: ' + d);
-                                post.document = -1;
-                                $("#uploaded-itinerary-participant").empty();
-                            }
+                    if (di > 0) {
+
+                        post.document = di;
+                        post.document_name = dn;
+
+                        var download = $('<a>', {
+                            class: 'site-link-2',
+                            href: '/accommodations/download/document/' + post.document,
+                            text: post.document_name
+                        });
+                        var del = $('<a>', {
+                            class: 'site-link-2',
+                            href: '/accommodations/delete/document/' + post.document + '/format/json',
+                            text: ' X '
+                        }).click(function(e){
+                            e.preventDefault();
+
+                            $.ajax({
+                                url: $(this).attr('href'),
+                                asynch: false,
+                                cache: false,
+                                dataType: 'json',
+                                type: 'post',
+                                beforeSend: function() {},
+                                complete: function() {},
+                                error: function(data, errorThrown) {},
+                                success: function(response) {                                    
+                                    console.log('r:' + JSON.stringify(response));
+                                    var r = JSON.parse(response.response);
+                                    var d = r.document;
+                                    console.log('document: ' + d);
+                                    post.document = -1;
+                                    $("#uploaded-itinerary-participant").empty();
+                                }
+                            });
+
+                            return false;                        
+
                         });
 
-                        return false;
-                    });
-                    $("#uploaded-itinerary-participant").empty().append(download).append(del);
+                        $("#uploaded-itinerary-participant").append(download).append(del);
+
+                    }
                     
-                }
+                }                               
                 
                 console.log('document info: ' + JSON.stringify(row));
             }
@@ -490,10 +499,10 @@
                     {name:'emergency_telephone',index:'emergency_telephone',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:6, colpos:2, label:'Emergency Telephone'}, editoptions:{style:"width:150px"}},
                     {name:'dietary_restrictions',index:'dietary_restrictions',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:5, colpos:2, label:'Dietary Restriction'}, editoptions:{style:"width:150px"}},
                     
-                    {name:'arrival_date',index:'arrival_date',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true, date:true}, formoptions:{elmsuffix:'', rowpos:7, colpos:1, label:'Arrival Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px"}},
+                    {name:'arrival_date',index:'arrival_date',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true, date:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:7, colpos:1, label:'Arrival Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px", readonly:"readonly"}},
                     {name:'arrival_time',index:'arrival_time',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:8, colpos:1, label:'Flight Arrival Time'}, editoptions:{style:"width:150px"}},
                     {name:'arrival_flight_info',index:'arrival_flight_info',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:9, colpos:1, label:'Arrival Flight #'}, editoptions:{style:"width:150px"}},
-                    {name:'departure_date',index:'departure_date',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true, date:true}, formoptions:{elmsuffix:'', rowpos:7, colpos:2, label:'Departure Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px"}},
+                    {name:'departure_date',index:'departure_date',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true, date:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:7, colpos:2, label:'Departure Date'},editoptions:{dataInit:dateElement,defaultValue:dateValue,style:"width:150px", readonly:"readonly"}},
                     {name:'departure_time',index:'departure_time',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:8, colpos:2, label:'Flight Departure Time'}, editoptions:{style:"width:150px"}},
                     {name:'departure_flight_info',index:'departure_flight_info',align:'',hidden:true, editable:true, align:"center", editrules:{required:false, edithidden:true}, formoptions:{elmsuffix:'', rowpos:9, colpos:2, label:'Departure Flight #'}, editoptions:{style:"width:150px"}},                    
                     
@@ -550,6 +559,16 @@
                         width:900,
                         bottominfo: "<span class='foot-note'>Note, if double occupancy, this individual will appear as a guest in your room.  Please do not make a separate reservation.</span>",
                         editData:$.extend({}, post, {manager_id:<?php echo $this->manager_id;?>}),
+                        beforeSubmit: function(postdata, formid) {
+                            
+                            var checked = $('#intinerary-participant-affirm').prop('checked');
+                            if (post.document === -1 && !checked) {
+                                return [false, 'You must either upload an itinerary or affirm otherwise.'];
+                            }
+                            return [true, ''];
+                            
+                            
+                        },
                         onclickSubmit: function() {
                             return $.extend({}, post);
                         },                        
@@ -558,7 +577,7 @@
                             $("#edit-response").dialog("open");
                         },
                         beforeShowForm: function() {
-                            beforeShowForm();                            
+                            beforeShowForm(0);                            
                         },
                         onClose: function() {
                             onClose();
@@ -637,7 +656,7 @@
                         $("#edit-response").dialog("open");
                     },
                     beforeShowForm: function() {
-                        beforeShowForm();
+                        beforeShowForm(0);
                     },
                     onClose: function() {
                         onClose();
@@ -692,6 +711,16 @@
                     width:900,                    
                     bottominfo: "<span class='foot-note'>Note, if double occupancy, this individual will appear as a guest in your room.  Please do not make a separate reservation.</span>",
                     editData:{manager_id:<?php echo $this->manager_id;?>},
+                    beforeSubmit: function(postdata, formid) {
+
+                        var checked = $('#intinerary-participant-affirm').prop('checked');
+                        if (post.document === -1 && !checked) {
+                            return [false, 'You must either upload an itinerary or affirm otherwise.'];
+                        }
+                        return [true, ''];
+
+
+                    },                    
                     onclickSubmit: function() {
                         return $.extend({}, post);
                     },
@@ -699,8 +728,8 @@
                         $("#add-response-body").html(addResponse(response.responseText));
                         $("#add-response").dialog("open");                        
                     },
-                    beforeShowForm: function() {
-                        beforeShowForm();
+                    beforeShowForm: function() {                        
+                        beforeShowForm(1);                        
                     },
                     onClose: function() {
                         onClose();

@@ -169,10 +169,10 @@ class AccommodationsController extends Zend_Controller_Action {
 
         // new items for 2013
 
-        $arrival_date = $this->_getParam("arrival_date", "");
+        $arrival_date = $this->_getParam("arrival_date", NULL);
         $arrival_time = $this->_getParam("arrival_time", "");
         $arrival_flight_info = $this->_getParam("arrival_flight_info", "");
-        $departure_date = $this->_getParam("departure_date", "");
+        $departure_date = $this->_getParam("departure_date", NULL);
         $departure_time = $this->_getParam("departure_time", "");
         $departure_flight_info = $this->_getParam("departure_flight_info", "");
 
@@ -461,7 +461,8 @@ class AccommodationsController extends Zend_Controller_Action {
             header("Pragma: no-cache");
             
             $itinerary_type = $_REQUEST["itinerary_type"];
-
+            $document_name = $_REQUEST["document_name"];
+            
             // Settings
             //$targetDir = ini_get("upload_tmp_dir") . DIRECTORY_SEPARATOR . "plupload";        
             $config = Zend_Registry::get('config');
@@ -469,7 +470,8 @@ class AccommodationsController extends Zend_Controller_Action {
             $targetDir = realpath($config->itinerary->upload->path);
 
             $cleanupTargetDir = true; // Remove old files
-            $maxFileAge = 5 * 3600; // Temp file age in seconds
+            //$maxFileAge = 5 * 3600; // Temp file age in seconds
+            $maxFileAge = 60 * 60 * 24 * 365; // Temp file age in seconds
 
             // 5 minutes execution time
             @set_time_limit(5 * 60);
@@ -507,9 +509,14 @@ class AccommodationsController extends Zend_Controller_Action {
             if ($cleanupTargetDir && is_dir($targetDir) && ($dir = opendir($targetDir))) {
                 while (($file = readdir($dir)) !== false) {
                     $tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
+                    
+                    $max = time() - $maxFileAge;
+                    $filetime = filemtime($tmpfilePath);
+                    $match = preg_match('/\.part$/', $file);
 
                     // Remove temp file if it is older than the max age and is not the current file
-                    if (preg_match('/\.part$/', $file) && (filemtime($tmpfilePath) < time() - $maxFileAge) && ($tmpfilePath != "{$filePath}.part")) {
+                    //if (preg_match('/\.part$/', $file) && (filemtime($tmpfilePath) < time() - $maxFileAge) && ($tmpfilePath != "{$filePath}.part")) {
+                    if (($filetime < $max) && ($tmpfilePath != "{$filePath}.part")) {
                         @unlink($tmpfilePath);
                     }
                 }
@@ -535,7 +542,7 @@ class AccommodationsController extends Zend_Controller_Action {
                     if ($out) {
                         // Read binary input stream and append it to temp file
                         $in = fopen($_FILES['file']['tmp_name'], "rb");
-
+                                                
                         if ($in) {
                             while ($buff = fread($in, 4096)) {
                                 fwrite($out, $buff);                            
@@ -561,7 +568,7 @@ class AccommodationsController extends Zend_Controller_Action {
                 if ($out) {
                     // Read binary input stream and append it to temp file
                     $in = fopen("php://input", "rb");
-
+                                        
                     if ($in) {
                         while ($buff = fread($in, 4096)) {
                             fwrite($out, $buff);                        
@@ -578,31 +585,33 @@ class AccommodationsController extends Zend_Controller_Action {
                 }
             }
             
-            $fh = fopen($filePath, "rb");
-            $fd = fread($fh);
-            $contents = unpack("N*", $fd);
-
             // Check if file has been uploaded
             if (!$chunks || $chunk == $chunks - 1) {
                 // Strip the temp .part suffix off 
-                rename("{$filePath}.part", $filePath);            
-            }                
+                rename("{$filePath}.part", $filePath);  
+                
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mime = finfo_file($finfo, $filePath);
+                finfo_close($finfo);
 
-            
-            $mapper = new Application_Model_TableMapper();   
-            $table_name = "documents";
-            $data = array(
-                'date_created' => date('Y-m-d'),
-                'type' => $itinerary_type,
-                'name' => $fileName,
-                'itinerary' => file_get_contents($filePath)
-            );
-                            
-            $document = $mapper->insertItem($table_name, $data);
-            $id = -1;
-            if ($document > 0) {
-                $id = $mapper->getLastInsertId($table_name);
-            }
+                $mapper = new Application_Model_TableMapper();   
+                $table_name = "documents";
+                $data = array(
+                    'date_created' => date('Y-m-d'),
+                    'type' => $itinerary_type,
+                    'name' => $fileName,
+                    //'itinerary' => file_get_contents($filePath),
+                    'file_name' => $document_name,
+                    'mime' => $mime
+                );
+
+                $document = $mapper->insertItem($table_name, $data);
+                $id = -1;
+                if ($document > 0) {
+                    $id = $mapper->getLastInsertId($table_name);
+                }
+                
+            }                
                         
             // Return JSON-RPC response
             $response = '{"jsonrpc" : "2.0", "result" : null, "id" : "id", "document": ' . $id . '}';                                    
@@ -639,6 +648,44 @@ class AccommodationsController extends Zend_Controller_Action {
         );
         $response = json_encode($data);
         $this->view->response = $response;
+    }
+    
+    function downloadAction() {
+        
+        $id = $this->_getParam("document", "-1");
+        
+        $mapper = new Application_Model_TableMapper();
+        $table_name = "documents";
+        $documents = $mapper->getItemById($table_name, $id);
+        
+        $config = Zend_Registry::get('config');
+        //$targetDir = realpath($config->itinerary->upload->path) . DIRECTORY_SEPARATOR;
+        $targetDir = realpath($config->itinerary->upload->path);
+        
+                
+        if (count($documents) > 0) {
+            
+            $document = $documents[0];
+            
+            $filePath = $targetDir . DIRECTORY_SEPARATOR . $document["name"];
+            $mime = $document["mime"];
+            $filename = $document["file_name"];
+            header("Content-type: $mime");
+            header("Content-Disposition: attachment; filename=\"".$filename."\"");            
+            //header("Content-length: $fsize");
+            //header("Cache-control: private");  
+            set_time_limit(0);
+            $file = @fopen($filePath,"rb");
+            while(!feof($file))
+            {
+                print(@fread($file, 1024*8));
+                ob_flush();
+                flush();
+            }
+        
+        }
+        
+        
     }
         
     
