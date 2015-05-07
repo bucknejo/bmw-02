@@ -648,6 +648,15 @@
                     width:900,
                     bottominfo: "<span class='foot-note'>Note, if double occupancy, this individual will appear as a guest in your room.  Please do not make a separate reservation.</span>",
                     editData:{manager_id:<?php echo $this->manager_id;?>},
+                    beforeSubmit: function(postdata, formid) {
+
+                        var checked = $('#intinerary-participant-affirm').prop('checked');
+                        if (post.document === -1 && !checked) {
+                            return [false, 'You must either upload an itinerary or affirm otherwise.'];
+                        }
+                        return [true, ''];
+
+                    },                                        
                     onclickSubmit: function() {
                         return $.extend({}, post);
                     },
