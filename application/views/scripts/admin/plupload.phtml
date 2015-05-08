@@ -72,6 +72,7 @@
                 UploadFile: function(up, file) {
                     console.log('[UploadFile]', file);
                     post.document_name = file.name;
+                    post.document_mime = file.type;
                     up.settings.multipart_params = $.extend({}, post);
                 },
                 BeforeUpload: function(up) {

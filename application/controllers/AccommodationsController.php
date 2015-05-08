@@ -462,6 +462,7 @@ class AccommodationsController extends Zend_Controller_Action {
             
             $itinerary_type = $_REQUEST["itinerary_type"];
             $document_name = $_REQUEST["document_name"];
+            $mime = $_REQUEST["document_mime"];
             
             // Settings
             //$targetDir = ini_get("upload_tmp_dir") . DIRECTORY_SEPARATOR . "plupload";        
@@ -590,9 +591,9 @@ class AccommodationsController extends Zend_Controller_Action {
                 // Strip the temp .part suffix off 
                 rename("{$filePath}.part", $filePath);  
                 
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $mime = finfo_file($finfo, $filePath);
-                finfo_close($finfo);
+                //$finfo = finfo_open(FILEINFO_MIME_TYPE);
+                //$mime = finfo_file($finfo, $filePath);
+                //finfo_close($finfo);
 
                 $mapper = new Application_Model_TableMapper();   
                 $table_name = "documents";
