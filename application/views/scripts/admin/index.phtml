@@ -17,10 +17,10 @@
     .form-spacing-button {margin:5px 0px 5px 0px;}
 
     #plupload {
-        display: none;
+        display: block;
         position:absolute;
-        top:175px;
-        left: 175px;
+        top:-999px;
+        left:-999px;
         /*height:400px;*/
         /*width:700px;*/
         background:#fff;
@@ -293,8 +293,9 @@
             $('#upload-itinerary').button().click(function() {
                 console.log('upload itinerary');
                 post.itinerary_type = 'participant';
-                $("#plupload").show();
-
+                    var css = {"top":"175px", "left":"175px"};
+                    //$("#plupload").show();
+                    $("#plupload").css(css);
             });
                         
             $("#uploaded-itinerary-participant").empty();
@@ -312,17 +313,10 @@
 
                     post.document = di;
                     post.document_name = dn;
+                    
+                    var download = $('<a class="site-link-2" href="/accommodations/download/document/'+post.document+'" >'+post.document_name+'</a>');
 
-                    var download = $('<a>', {
-                        class: 'site-link-2',
-                        href: '/accommodations/download/document/' + post.document,
-                        text: post.document_name
-                    });
-                    var del = $('<a>', {
-                        class: 'site-link-2',
-                        href: '/accommodations/delete/document/' + post.document + '/format/json',
-                        text: ' X '
-                    }).click(function(e){
+                    var del = $('<a class="site-link-2" href="/accommodations/delete/document/'+post.document+'/format/json" > X </a>').click(function(e){
                         e.preventDefault();
 
                         $.ajax({

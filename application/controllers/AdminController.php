@@ -133,7 +133,7 @@ class AdminController extends Zend_Controller_Action {
         
         $excel = new JEB_Lib_Excel();
 
-        $content = $excel->writeExcelXml1($filename, $segment, $rs, $user);
+        $content = $excel->writeExcelCsv($filename, $segment, $rs, $user);
         $response->setBody($content);
     }   
     
@@ -148,7 +148,7 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->layout->disableLayout();
         $this->getResponse()->clearAllHeaders();
 
-        $filename = 'bmw_aftersales_rnd_'.date('YmdHis').".xls";
+        $filename = 'bmw_aftersales_rnd_'.date('YmdHis').".csv";
         $user = JEB_Lib_Lib::getUser();
 
         $response = $this->getResponse();
@@ -156,7 +156,8 @@ class AdminController extends Zend_Controller_Action {
         $value = "attachment; filename=\"".$filename."\"";
         $response->setHeader($name, $value);
         $name = "Content-Type";
-        $value = "application/vnd.ms-excel";
+        //$value = "application/vnd.ms-excel";
+        $value = "text/csv";
         $response->setHeader($name, $value);
         
         $excel = new JEB_Lib_Excel();
@@ -168,7 +169,8 @@ class AdminController extends Zend_Controller_Action {
         $rss[] = $mapper->getAll('view_pwn', $wheres);
         
         
-        $content = $excel->writeExcelXml2($filename, $segments, $rss, $user);
+        //$content = $excel->writeExcelXml2($filename, $segments, $rss, $user);
+        $content = $excel->writeExcelCsv1($filename, $segments, $rss, $user);
         $response->setBody($content);
     }   
     
