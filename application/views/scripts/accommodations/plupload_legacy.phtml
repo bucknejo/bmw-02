@@ -1,0 +1,166 @@
+<style type="text/css">
+    
+    #uploader-container {padding: 15px;}
+    #close {position:absolute;top:3px;right:3px;z-index:999;}
+    #uploader {display:none;}
+    
+</style>
+
+<script type="text/javascript">
+;(function($){
+ 
+    $(document).ready(function(){
+        
+        $("#close").click(function(e){
+            e.preventDefault();
+            $("#plupload").hide();
+            return false;
+        });
+        
+        $("#uploader").plupload({
+            // General settings
+            runtimes : 'html5,flash,silverlight,html4',
+            url : "/accommodations/upload/format/html",
+
+            // Maximum file size
+            max_file_size : '100mb',
+
+            unique_names : true,
+            multi_selection : false,
+            
+            chunk_size: '1mb',
+
+            // Resize images on clientside if we can
+            /*
+            resize : {
+                width : 200,
+                height : 200,
+                quality : 90,
+                crop: true // crop to exact dimensions
+            },
+            */
+
+            // Specify what files to browse for
+            filters : [
+                {title : "Image files", extensions : "jpg,gif,png"},
+                {title : "Zip files", extensions : "zip,avi"},
+                {title : "Document files", extensions : "pdf,html"}
+            ],
+
+            // Rename files by clicking on their titles
+            rename: true,
+
+            // Sort files
+            sortable: true,
+
+            // Enable ability to drag'n'drop files onto the widget (currently only HTML5 supports that)
+            dragdrop: true,
+
+            // Views to activate
+            views: {
+                list: true,
+                thumbs: true, // Show thumbs
+                active: 'thumbs'
+            },
+
+            multipart: true,
+            multipart_params: $.extend({}, post),
+            
+            preinit: {
+                Init: function(up, info) {
+                    console.log('[Init]', 'Info:', info, 'Features:', up.features);
+                },
+                UploadFile: function(up, file) {
+                    console.log('[UploadFile]', file);
+                    post.document_name = file.name;
+                    post.document_mime = file.type;
+                    up.settings.multipart_params = $.extend({}, post);
+                },
+                BeforeUpload: function(up) {
+                    console.log('post: ' + JSON.stringify(post)); 
+                    up.settings.multipart_params = $.extend({}, post);
+                },
+                FileUploaded: function(up, file, info) {
+                    console.log('[FileUploaded]', 'Info:', JSON.stringify(info), 'File:', file);
+                    
+                    var status = info.status;
+                    
+                    if (status === 200) {
+                        var response = JSON.parse(info.response);
+                        //console.log('response: ' + response);
+                        console.log('response: ' + JSON.stringify(response));
+                        post.document = response.document;
+                        post.document_name = file.name;
+                        
+                        var download = $('<a>', {
+                            class: 'site-link-2',
+                            href: '/accommodations/download/document/' + post.document,
+                            text: file.name
+                        });
+                        
+                        var del = $('<a>', {
+                            class: 'site-link-2',
+                            href: '/accommodations/delete/document/' + post.document + '/format/json',
+                            text: ' X '
+                        }).click(function(e){
+                            e.preventDefault();
+                                                        
+                            $.ajax({
+                                url: $(this).attr('href'),
+                                asynch: false,
+                                cache: false,
+                                dataType: 'json',
+                                type: 'post',
+                                beforeSend: function() {},
+                                complete: function() {},
+                                error: function(data, errorThrown) {},
+                                success: function(response) {                                    
+                                    console.log('r:' + JSON.stringify(response));
+                                    var r = JSON.parse(response.response);
+                                    var d = r.document;
+                                    console.log('document: ' + d);
+                                    post.document = -1;
+                                    $("#uploaded-itinerary-participant").empty();
+                                }
+                            });
+                            
+                            return false;
+                        });
+                        $("#uploaded-itinerary-participant").empty().append(download).append(del);
+                        
+                    }
+                    
+                },
+                UploadComplete: function(up, files) {
+                    console.log('[UploadComplete]', 'up:', up, 'files:', files);
+                    $("#close").trigger('click');                    
+                },
+                FilesAdded: function(up, files) {
+                    console.log('[FilesAdded]', 'Files:', files.length);
+                },
+                FilesRemoved: function(up, files) {
+                    console.log('[FilesRemoved]', 'Files:', files.length);                    
+                },
+                Error: function(up, args) {
+                    console.log('[Error]', args);
+                }                
+            },
+            // Flash settings
+            flash_swf_url : '/plupload-2.1.2/js/Moxie.swf',
+
+            // Silverlight settings
+            silverlight_xap_url : '/plupload-2.1.2/js/Moxie.xap'
+            
+        });
+        
+    });
+   
+})(jQuery);    
+</script>
+
+<div id="uploader-container">
+    <a href="" class="ui-icon ui-icon-close" id="close"></a>
+    <div id="uploader" style="display:block;">
+        <p>Your browser doesn't have Flash, Silverlight or HTML5 support.</p>
+    </div>    
+</div>

@@ -32,10 +32,10 @@
     #plus-sign {background-color: #1c68d1; color: #ffffff; padding:1px 3px 1px 3px;font-weight:bold;}
     
     #plupload {
-        display: none;
+        display: block;
         position:absolute;
-        top:175px;
-        left: 175px;
+        top:-999px;
+        left:-999px;
         /*height:400px;*/
         /*width:700px;*/
         background:#fff;
@@ -281,7 +281,10 @@
                 $('#upload-itinerary').button().click(function() {
                     console.log('upload itinerary');
                     post.itinerary_type = 'participant';
-                    $("#plupload").show();
+                    //$("#uploader").plupload('getUploader').refresh();
+                    var css = {"top":"175px", "left":"175px"};
+                    //$("#plupload").show();
+                    $("#plupload").css(css);
                     
                 });
                                                                 
@@ -301,16 +304,9 @@
                         post.document = di;
                         post.document_name = dn;
 
-                        var download = $('<a>', {
-                            class: 'site-link-2',
-                            href: '/accommodations/download/document/' + post.document,
-                            text: post.document_name
-                        });
-                        var del = $('<a>', {
-                            class: 'site-link-2',
-                            href: '/accommodations/delete/document/' + post.document + '/format/json',
-                            text: ' X '
-                        }).click(function(e){
+                        var download = $('<a class="site-link-2" href="/accommodations/download/document/'+post.document+'" >'+post.document_name+'</a>');
+                        
+                        var del = $('<a class="site-link-2" href="/accommodations/delete/document/'+post.document+'/format/json" > X </a>').click(function(e){
                             e.preventDefault();
 
                             $.ajax({
@@ -490,7 +486,7 @@
                     {name:'late_check_out',index:'late_check_out',align:'',hidden:true, editable:false, align:"center", editrules:{required:false, edithidden:false}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:13, colpos:2, label:'Late Check-Out'}, edittype:'select',editoptions:{value:"No:No;Yes:Yes", style:"width:158px"}},
                     
                     {name:'transportation',index:'transportation',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:10, colpos:1, label:'Ground Transportation Required'},edittype:'select',editoptions:{value:"No:No;Yes:Yes", style:"width:158px"}},
-                    {name:'hotel',index:'hotel',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:10, colpos:2, label:'Hotel'}, edittype:'select',editoptions:{value:"Marriott Greenville:Marriott Greenville",style:"width:158px"}},
+                    {name:'hotel',index:'hotel',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:10, colpos:2, label:'Hotel'}, edittype:'select',editoptions:{value:"La Quinta Resort and Club:La Quinta Resort and Club",style:"width:158px"}},
                     {name:'room_type',index:'room_type',align:'',hidden:true, editable:true, align:"center", editrules:{required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:11, colpos:1, label:'Room Type'}, edittype:'select',editoptions:{value:"1 King Bed:1 King Bed;2 Double Beds:2 Double Beds",style:"width:158px"}},
                     {name:'occupancy',index:'occupancy',align:'',hidden:true, editable:true, align:"center", editrules:{custom:true, custom_func:validateOccupancy,required:true, edithidden:true}, formoptions:{elmsuffix:'<span class="participant-required">*</span>', rowpos:11, colpos:2, label:'Occupancy'}, edittype:'select',editoptions:{value:"Single:Single;Double:Double",style:"width:158px"}},
                     
@@ -845,7 +841,7 @@
     <img src="/images/bmw-image-02-crop-01.jpg" alt="" id="index-image-1"/>
     <img src="/images/bmw-image-2014-03-crop.png" alt="" id="index-image-1"/>
     -->
-    <img src="/images/2015/IMG_0017.png" alt="" id="index-image-1"/>
+    <img src="/images/2015/_R2E7055.png" alt="" id="index-image-1"/>
 
     <h3>
         Hotel Accommodations

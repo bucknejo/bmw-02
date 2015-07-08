@@ -85,7 +85,7 @@ class Zend_Controller_Action_Helper_Confirmation extends Zend_Controller_Action_
         //$html .= "<div style='background-color:#999999;height:85px;position:relative;'>";
         //$html .= "<div style='color:#fff;font-weight:bold;position:absolute;top:10px;left:10px;'>BMW Aftersales Recognition Ride-and-Drive Event<br><span style='font-weight:normal;'>Greer, South Carolina</span></div>";
         //$html .= "<img src='".$image_path."/images/id_box_90x90-new.png' alt='' style='float:right;'/>";
-        $html .= "<img src='".$image_path."/images/mail-confirmation-2014.png' alt='' />";
+        $html .= "<img src='".$image_path."/images/mail-confirmation-2015.png' alt='' />";
         $html .= "</div>";
         $html .= "</td>";
         $html .= "</tr>";
@@ -93,7 +93,7 @@ class Zend_Controller_Action_Helper_Confirmation extends Zend_Controller_Action_
         // header
         $html .= "<tr>";
         $html .= "<td colspan='2'>";
-        $html .= "<div style=''>Congratulations!  <b>". $data['participant_name'] ."</b> is officially registered to attend the $year BMW Aftersales Recognition Ride-and-Drive Event in Greer, South Carolina.</div>";
+        $html .= "<div style=''>Congratulations!  <b>". $data['participant_name'] ."</b> is officially registered to attend the $year BMW Aftersales Recognition Ride-and-Drive Event in Thermal, California.</div>";
         $html .= "</td>";
         $html .= "</tr>";
         
@@ -110,7 +110,7 @@ class Zend_Controller_Action_Helper_Confirmation extends Zend_Controller_Action_
         $html .= "<div style=''>Hotel:</div>";
         $html .= "</td>";
         $html .= "<td valign='top'>";
-        $html .= "<div style='color:#0088ce;'>".$data['hotel']."<br>One Parkway East<br>Greenville, SC  29615<br>Tel. (864) 297-0300</div>";
+        $html .= "<div style='color:#0088ce;'>".$data['hotel']."<br>49-499 Eisenhower Drive<br>La Quinta, CA  92253<br>Tel. (760) 564-4111</div>";
         $html .= "</td>";
         $html .= "</tr>";
         
